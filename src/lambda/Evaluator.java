@@ -67,5 +67,4 @@ public class Evaluator {
     public static Object eval(Expression input) {
         return input.accept(COMPILER).execute(Stack.EMPTY);
     }
-
 }
