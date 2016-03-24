@@ -28,7 +28,8 @@ public class Evaluator {
     // Used by the experimental 'Decompiler'.
     public static interface Marker extends Function<Object, Object> {}
 
-    // 'Compiler' is a bit misleading! This visitor turns symbols into numbers at 'compile' time.
+    // 'Compiler' is a bit misleading!
+    // This visitor turns symbols into numbers at 'compile' time and provides a mechanism for evaluation.
     public static final Expression.Visitor<Implementation> COMPILER =
             new Expression.Visitor<Implementation>() {
                 private ArrayList<String> lexicalVars = new ArrayList<>();
