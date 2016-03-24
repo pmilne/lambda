@@ -3,7 +3,6 @@ package lambda;
 /**
  * @author pmilne
  */
-@SuppressWarnings("UnnecessaryInterfaceModifier")
 public abstract class Expression {
     public abstract <S> S accept(Visitor<S> visitor);
 
