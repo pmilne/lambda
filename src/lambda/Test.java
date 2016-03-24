@@ -42,6 +42,7 @@ public class Test {
     }
 
     public static void main(String[] args) {
+        long start = System.currentTimeMillis();
         test("1 2", "1", "2");
         test("(lambda (x) x)", "(lambda (a) a)");
         test("((lambda (x) x) 1)", "1");
@@ -54,6 +55,11 @@ public class Test {
         test("((lambda (f) (f f f f)) (lambda (f x) (f (f x))))", 65536); // 2^16
 //        test("((lambda (f) (f f f f f)) (lambda (f x) (f (f x))))", 0); // 2^65536 - stack overflow
 //        test("((lambda (f) (f f)) (lambda (f) (f f))))", -1); // hangs
+        test("((lambda (f) (f f f (f f))) (lambda (f x) (f (f x))))", 0); // 2^32 about 1 min
+        test("((lambda (f) (f (f f) f)) (lambda (f x) (f (f x))))", 65536); // 2^16
+        test("((lambda (f) (f (f f) f)) (lambda (f x) (f (f x))))", 65536); // 2^16
+        test("((lambda (f) (f (f f f))) (lambda (f x) (f (f x))))", 256); // 2^8
         test("((lambda (f) (f f (f f))) (lambda (f x) (f (f x))))", 256);
+        System.out.println("Time: " + (System.currentTimeMillis() - start));
     }
 }

@@ -9,15 +9,29 @@ import java.util.function.Function;
 @SuppressWarnings("UnnecessaryInterfaceModifier")
 public class Evaluator {
     // A misnomer, this Stack is immutable -- and lives in the heap.
-    public static interface Stack {
-        public static final Stack EMPTY = n -> {
-            throw new RuntimeException("Internal error: stack is empty! ");
-        };
+    private static class Stack {
+        public static final Stack EMPTY = null;
 
-        public Object get(int n);
+        private final Stack parent;
+        private final Object value;
 
-        public static Stack create(Stack parent, Object value) {
-            return n -> n == 0 ? value : parent.get(n - 1);
+        public Stack(Stack parent, Object value) {
+            this.parent = parent;
+            this.value = value;
+        }
+
+        public Object get(int n) {
+            Stack that = this;
+            // Not convinced this makes any difference.
+//            for (int i = n; i != 0; i--) { //Time: 67784
+            for (int i = 0; i < n; i++) { // Time: 66942
+                that = that.parent;
+            }
+            return that.value;
+        }
+
+        public String toString() {
+            return "{" + parent + " " + value + "}";
         }
     }
 
@@ -61,7 +75,7 @@ public class Evaluator {
                     lexicalVars.add(var.accept(Expressions.TO_STRING));
                     Implementation l = exp.accept(this);
                     lexicalVars.remove(lexicalVars.size() - 1);
-                    return s -> (Marker) a -> l.execute(Stack.create(s, a));
+                    return s -> (Marker) a -> l.execute(new Stack(s, a));
                 }
             };
 
