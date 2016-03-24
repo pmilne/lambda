@@ -67,8 +67,8 @@ public class Evaluator {
 
                     @Override
                     public Implementation lambda(Expression var, Expression exp) {
-                        Stack<String> newNameStack = Stack.create(nameStack, var.accept(Expressions.TO_STRING));
-                        Implementation exp0 = exp.accept(createCompiler(newNameStack));
+                        String varName = var.accept(Expressions.TO_STRING);
+                        Implementation exp0 = exp.accept(createCompiler(Stack.create(nameStack, varName)));
                         return valueStack -> (Marker) arg -> exp0.execute(Stack.create(valueStack, arg));
                     }
                 };
