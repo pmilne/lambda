@@ -25,6 +25,7 @@ public class Evaluator {
         public Object execute(Stack s);
     }
 
+    // Used by the experimental 'Decompiler'.
     public static interface Marker extends Function<Object, Object> {}
 
     // 'Compiler' is a bit misleading! This visitor turns symbols into numbers at 'compile' time.
