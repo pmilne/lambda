@@ -41,6 +41,20 @@ public class Test {
         });
     }
 
+    private static void test(String input, Class<?> c) {
+        try {
+            new Reader(Expressions.CONSTRUCTOR).parse(input, exp -> {
+                System.out.println("Input: " + exp);
+                Object value = Evaluator.eval(exp);
+                int out = asInteger(value);
+                System.out.println("Output: " + out);
+                assert false;
+            });
+        } catch (Exception e) {
+            assert c.isAssignableFrom(e.getClass());
+        }
+    }
+
     public static void main(String[] args) {
         test("1 2", "1", "2");
         test("(lambda (x) x)", "(lambda (a) a)");
@@ -57,6 +71,7 @@ public class Test {
         test("((lambda (f) (f (f f) f)) (lambda (f x) (f (f x))))", 65536); // 2^16
         test("((lambda (f) (f (f f f))) (lambda (f x) (f (f x))))", 256); // 2^8
         test("((lambda (f) (f f (f f))) (lambda (f x) (f (f x))))", 256); // 2^8
+        test("(lambda (x) c)", RuntimeException.class);
         System.out.println("Starting evaluator performance test (typical run time is ~70s)... ");
         long start = System.currentTimeMillis();
         test("((lambda (f) (f f f (f f))) (lambda (f x) (f (f x))))", 0); // 2^32 about 1 min

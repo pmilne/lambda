@@ -18,7 +18,7 @@ public class Evaluator {
         }
 
         public static <T> Stack<T> create(Stack<T> parent, T value) {
-            return new Stack<T>(parent, value);
+            return new Stack<>(parent, value);
         }
 
         public T get(int n) {
@@ -39,48 +39,48 @@ public class Evaluator {
     }
 
     public static interface Implementation {
-        public Object execute(Stack<Object> s);
+        public Object execute(Stack<Object> valueStack);
     }
 
     // Used by the experimental 'Decompiler'.
     public static interface Marker extends Function<Object, Object> {}
 
-    // 'Compiler' is a bit misleading!
     // This visitor turns symbols into numbers at 'compile' time and provides a mechanism for evaluation.
-    public static final Expression.Visitor<Implementation> COMPILER = new Expression.Visitor<Implementation>() {
-                private Stack<String> lexicalVars = new Stack<String>(null, null) {
+    public static final Expression.Visitor<Implementation> COMPILER = createCompiler(new Stack<String>(null, null) {
+        @Override
+        public int indexOf(String name) {
+            throw new RuntimeException("Undefined variable: " + name);
+        }
+    });
+
+    private static Expression.Visitor<Implementation> createCompiler(final Stack<String> nameStack) {
+        return new Expression.Visitor<Implementation>() {
                     @Override
-                    public int indexOf(String name) {
-                        throw new RuntimeException("Undefined variable: " + name);
+                    public Implementation constant(Object value) {
+                        return valueStack -> value;
+                    }
+
+                    @Override
+                    public Implementation symbol(String name) {
+                        int index = nameStack.indexOf(name);
+                        return valueStack -> valueStack.get(index);
+                    }
+
+                    @Override
+                    public Implementation application(Expression fun, Expression arg) {
+                        Implementation fun0 = fun.accept(this);
+                        Implementation arg0 = arg.accept(this);
+                        return valueStack -> ((Function) fun0.execute(valueStack)).apply(arg0.execute(valueStack));
+                    }
+
+                    @Override
+                    public Implementation lambda(Expression var, Expression exp) {
+                        Stack<String> newNameStack = Stack.create(nameStack, var.accept(Expressions.TO_STRING));
+                        Implementation exp0 = exp.accept(createCompiler(newNameStack));
+                        return valueStack -> (Marker) arg -> exp0.execute(Stack.create(valueStack, arg));
                     }
                 };
-
-                @Override
-                public Implementation constant(Object c) {
-                    return s -> c;
-                }
-
-                @Override
-                public Implementation symbol(String name) {
-                    int index = lexicalVars.indexOf(name);
-                    return s -> s.get(index);
-                }
-
-                @Override
-                public Implementation application(Expression fun, Expression arg) {
-                    Implementation f = fun.accept(this);
-                    Implementation a = arg.accept(this);
-                    return s -> ((Function) f.execute(s)).apply(a.execute(s));
-                }
-
-                @Override
-                public Implementation lambda(Expression var, Expression exp) {
-                    lexicalVars = Stack.create(lexicalVars, var.accept(Expressions.TO_STRING));
-                    Implementation l = exp.accept(this);
-                    lexicalVars = lexicalVars.parent;
-                    return s -> (Marker) a -> l.execute(Stack.create(s, a));
-                }
-            };
+    }
 
     public static Object eval(Expression input) {
         return input.accept(COMPILER).execute(null);
