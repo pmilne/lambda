@@ -8,7 +8,7 @@ import java.util.function.Function;
 @SuppressWarnings("UnnecessaryInterfaceModifier")
 public class Evaluator {
     // A misnomer, this Stack is immutable -- and lives in the heap.
-    private static class Stack<T> {
+    public static class Stack<T> {
         private final Stack<T> parent;
         private final T value;
 
@@ -45,14 +45,6 @@ public class Evaluator {
     // Used by the experimental 'Decompiler'.
     public static interface Marker extends Function<Object, Object> {}
 
-    // This visitor turns symbols into numbers at 'compile' time and provides a mechanism for evaluation.
-    public static final Expression.Visitor<Implementation> COMPILER = createCompiler(new Stack<String>(null, null) {
-        @Override
-        public int indexOf(String name) {
-            throw new RuntimeException("Undefined variable: " + name);
-        }
-    });
-
     private static Expression.Visitor<Implementation> createCompiler(final Stack<String> nameStack) {
         return new Expression.Visitor<Implementation>() {
                     @Override
@@ -81,6 +73,14 @@ public class Evaluator {
                     }
                 };
     }
+
+    // This visitor turns symbols into numbers at 'compile' time and provides a mechanism for evaluation.
+    public static final Expression.Visitor<Implementation> COMPILER = createCompiler(new Stack<String>(null, null) {
+        @Override
+        public int indexOf(String name) {
+            throw new RuntimeException("Undefined variable: " + name);
+        }
+    });
 
     public static Object eval(Expression input) {
         return input.accept(COMPILER).execute(null);
