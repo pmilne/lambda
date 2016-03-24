@@ -32,16 +32,17 @@ public class Decompiler {
         public static Converter create(int level) {
             return new Converter() {
                 public Expression convert(Object o) {
-                    if ((o instanceof Mole)) {
-                        return ((Mole) o).exp;
+                    if (o instanceof Mole) {
+                        Mole mole = (Mole) o;
+                        return mole.exp;
                     }
-                    if (!(o instanceof Evaluator.Marker)) {
-                        return Expressions.CONSTRUCTOR.constant(o);
+                    if (o instanceof Evaluator.Marker) {
+                        Evaluator.Marker f = (Evaluator.Marker) o;
+                        Expression var = Expressions.CONSTRUCTOR.symbol(varName(level));
+                        Converter converter = create(level + 1);
+                        return Expressions.CONSTRUCTOR.lambda(var, converter.convert(f.apply(new Mole(var, converter))));
                     }
-                    Evaluator.Marker f = (Evaluator.Marker) o;
-                    Expression var = Expressions.CONSTRUCTOR.symbol(varName(level));
-                    Converter converter = create(level + 1);
-                    return Expressions.CONSTRUCTOR.lambda(var, converter.convert(f.apply(new Mole(var, converter))));
+                    return Expressions.CONSTRUCTOR.constant(o);
                 }
             };
         }
