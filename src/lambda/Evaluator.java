@@ -22,8 +22,6 @@ public class Evaluator {
 
         public Object get(int n) {
             Stack that = this;
-            // Not convinced this makes any difference.
-//            for (int i = n; i != 0; i--) { //Time: 67784
             for (int i = 0; i < n; i++) { // Time: 66942
                 that = that.parent;
             }
