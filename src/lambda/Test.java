@@ -42,6 +42,7 @@ public class Test {
     }
 
     public static void main(String[] args) {
+        test("1 2", "1", "2");
         test("(lambda (x) x)", "(lambda (a) a)");
         test("((lambda (x) x) 1)", "1");
         test("((lambda (x) x) (lambda (x) x))", "(lambda (a) a)");
@@ -54,6 +55,5 @@ public class Test {
 //        test("((lambda (f) (f f f f f)) (lambda (f x) (f (f x))))", 0); // 2^65536 - stack overflow
 //        test("((lambda (f) (f f)) (lambda (f) (f f))))", -1); // y-combinator - hangs under call-by-value
         test("((lambda (f) (f f (f f))) (lambda (f x) (f (f x))))", 256);
-        test("1 2 3", "1", "2", "3");
     }
 }
