@@ -53,7 +53,7 @@ public class Test {
         test("((lambda (f) (f f f)) (lambda (f x) (f (f x))))", 16); // 2^4
         test("((lambda (f) (f f f f)) (lambda (f x) (f (f x))))", 65536); // 2^16
 //        test("((lambda (f) (f f f f f)) (lambda (f x) (f (f x))))", 0); // 2^65536 - stack overflow
-//        test("((lambda (f) (f f)) (lambda (f) (f f))))", -1); // hangs under call-by-value
+//        test("((lambda (f) (f f)) (lambda (f) (f f))))", -1); // hangs
         test("((lambda (f) (f f (f f))) (lambda (f x) (f (f x))))", 256);
     }
 }
