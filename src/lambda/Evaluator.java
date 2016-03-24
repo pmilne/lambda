@@ -45,6 +45,7 @@ public class Evaluator {
     // Used by the experimental 'Decompiler'.
     public static interface Marker extends Function<Object, Object> {}
 
+    // This visitor turns symbols into numbers at 'compile' time and provides a mechanism for evaluation.
     private static Expression.Visitor<Implementation> createCompiler(final Stack<String> nameStack) {
         return new Expression.Visitor<Implementation>() {
                     @Override
@@ -74,7 +75,6 @@ public class Evaluator {
                 };
     }
 
-    // This visitor turns symbols into numbers at 'compile' time and provides a mechanism for evaluation.
     public static final Expression.Visitor<Implementation> COMPILER = createCompiler(new Stack<String>(null, null) {
         @Override
         public int indexOf(String name) {
