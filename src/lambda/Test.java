@@ -56,11 +56,10 @@ public class Test {
 //        test("((lambda (f) (f f f f f)) (lambda (f x) (f (f x))))", 0); // 2^65536 - stack overflow
 //        test("((lambda (f) (f f)) (lambda (f) (f f))))", -1); // hangs
         test("((lambda (f) (f (f f) f)) (lambda (f x) (f (f x))))", 65536); // 2^16
-        test("((lambda (f) (f (f f) f)) (lambda (f x) (f (f x))))", 65536); // 2^16
         test("((lambda (f) (f (f f f))) (lambda (f x) (f (f x))))", 256); // 2^8
-        test("((lambda (f) (f f (f f))) (lambda (f x) (f (f x))))", 256);
+        test("((lambda (f) (f f (f f))) (lambda (f x) (f (f x))))", 256); // 2^8
         System.out.println("Starting evaluator performance test (typical run time is ~70s)... ");
         test("((lambda (f) (f f f (f f))) (lambda (f x) (f (f x))))", 0); // 2^32 about 1 min
-        System.out.println("Time: " + (System.currentTimeMillis() - start)/1000.0);
+        System.out.println("Time: " + (System.currentTimeMillis() - start)/1000.0 + "s");
     }
 }
