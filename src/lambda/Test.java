@@ -17,7 +17,7 @@ public class Test {
     private static void test(String input, String... outputs) {
         new Reader(Expressions.CONSTRUCTOR).parse(input, new Reader.Processor<Expression>() {
             private int index = 0;
-            
+
             @Override
             public void process(Expression exp) {
                 System.out.println("Input: " + exp);
@@ -48,9 +48,12 @@ public class Test {
         test("((lambda (x) (x x)) (lambda (x) x))", "(lambda (a) a)");
         test("((lambda (f) (f f)) (lambda (f x) (f (f x))))", "(lambda (a) (lambda (b) (a (a (a (a b))))))");
         test("(lambda (f) (f (lambda (x) (f x 1))))", "(lambda (a) (a (lambda (b) ((a b) 1))))");
+        test("((lambda (f) (f f)) (lambda (f x) (f (f x))))", 4); // 2^2
+        test("((lambda (f) (f f f)) (lambda (f x) (f (f x))))", 16); // 2^4
+        test("((lambda (f) (f f f f)) (lambda (f x) (f (f x))))", 65536); // 2^16
+//        test("((lambda (f) (f f f f f)) (lambda (f x) (f (f x))))", 0); // 2^65536 - stack overflow
+//        test("((lambda (f) (f f)) (lambda (f) (f f))))", -1); // y-combinator - hangs under call-by-value
         test("((lambda (f) (f f (f f))) (lambda (f x) (f (f x))))", 256);
-        test("((lambda (f) (f f f f)) (lambda (f x) (f (f x))))", 65536);
-//        test("((lambda (f) (f f)) (lambda (f) (f f)) (lambda (f x) (f (f x))))", -1); // 2 ^ hangs!
         test("1 2 3", "1", "2", "3");
     }
 }
