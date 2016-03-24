@@ -22,7 +22,7 @@ public class Evaluator {
 
         public Object get(int n) {
             Stack that = this;
-            for (int i = 0; i < n; i++) { // Time: 66942
+            for (int i = 0; i < n; i++) {
                 that = that.parent;
             }
             return that.value;
