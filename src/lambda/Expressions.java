@@ -10,7 +10,7 @@ public class Expressions {
                 public Expression constant(final Object c) {
                     return new Expression() {
                         @Override
-                        public <S> S accept(Visitor<S> visitor) {
+                        public <T> T accept(Visitor<T> visitor) {
                             return visitor.constant(c);
                         }
                     };
@@ -20,7 +20,7 @@ public class Expressions {
                 public Expression symbol(final String name) {
                     return new Expression() {
                         @Override
-                        public <S> S accept(Visitor<S> visitor) {
+                        public <T> T accept(Visitor<T> visitor) {
                             return visitor.symbol(name);
                         }
                     };
@@ -30,7 +30,7 @@ public class Expressions {
                 public Expression application(final Expression fun, final Expression arg) {
                     return new Expression() {
                         @Override
-                        public <S> S accept(Visitor<S> visitor) {
+                        public <T> T accept(Visitor<T> visitor) {
                             return visitor.application(fun, arg);
                         }
                     };
@@ -40,7 +40,7 @@ public class Expressions {
                 public Expression lambda(final Expression var, final Expression exp) {
                     return new Expression() {
                         @Override
-                        public <S> S accept(Visitor<S> visitor) {
+                        public <T> T accept(Visitor<T> visitor) {
                             return visitor.lambda(var, exp);
                         }
                     };
