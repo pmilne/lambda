@@ -138,7 +138,7 @@ public class Reader {
     }
 
     public Parser argParser(Expression exp, Reduction closer) {
-        return new ApplicationParser(e -> argParser(Expressions.CONSTRUCTOR.application(exp, e), closer)) {
+        return new ApplicationParser(e -> argParser(constructor.application(exp, e), closer)) {
             @Override
             public Parser rParen(String s) {
                 return closer.reduce(exp);
