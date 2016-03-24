@@ -1,6 +1,5 @@
 package lambda;
 
-import java.util.ArrayList;
 import java.util.function.Function;
 
 /**
@@ -9,23 +8,29 @@ import java.util.function.Function;
 @SuppressWarnings("UnnecessaryInterfaceModifier")
 public class Evaluator {
     // A misnomer, this Stack is immutable -- and lives in the heap.
-    private static class Stack {
-        public static final Stack EMPTY = null;
+    private static class Stack<T> {
+        private final Stack<T> parent;
+        private final T value;
 
-        private final Stack parent;
-        private final Object value;
-
-        public Stack(Stack parent, Object value) {
+        private Stack(Stack<T> parent, T value) {
             this.parent = parent;
             this.value = value;
         }
 
-        public Object get(int n) {
-            Stack that = this;
+        public static <T> Stack<T> create(Stack<T> parent, T value) {
+            return new Stack<T>(parent, value);
+        }
+
+        public T get(int n) {
+            Stack<T> that = this;
             for (int i = 0; i < n; i++) {
                 that = that.parent;
             }
             return that.value;
+        }
+
+        public int indexOf(T o) {
+            return value.equals(o) ? 0 : 1 + parent.indexOf(o);
         }
 
         public String toString() {
@@ -34,7 +39,7 @@ public class Evaluator {
     }
 
     public static interface Implementation {
-        public Object execute(Stack s);
+        public Object execute(Stack<Object> s);
     }
 
     // Used by the experimental 'Decompiler'.
@@ -42,9 +47,13 @@ public class Evaluator {
 
     // 'Compiler' is a bit misleading!
     // This visitor turns symbols into numbers at 'compile' time and provides a mechanism for evaluation.
-    public static final Expression.Visitor<Implementation> COMPILER =
-            new Expression.Visitor<Implementation>() {
-                private ArrayList<String> lexicalVars = new ArrayList<>();
+    public static final Expression.Visitor<Implementation> COMPILER = new Expression.Visitor<Implementation>() {
+                private Stack<String> lexicalVars = new Stack<String>(null, null) {
+                    @Override
+                    public int indexOf(String name) {
+                        throw new RuntimeException("Undefined variable: " + name);
+                    }
+                };
 
                 @Override
                 public Implementation constant(Object c) {
@@ -53,11 +62,7 @@ public class Evaluator {
 
                 @Override
                 public Implementation symbol(String name) {
-                    int lastIndex = lexicalVars.lastIndexOf(name);
-                    if (lastIndex == -1) {
-                        throw new RuntimeException("Undefined variable: " + name);
-                    }
-                    int index = lexicalVars.size() - 1 - lastIndex;
+                    int index = lexicalVars.indexOf(name);
                     return s -> s.get(index);
                 }
 
@@ -70,14 +75,14 @@ public class Evaluator {
 
                 @Override
                 public Implementation lambda(Expression var, Expression exp) {
-                    lexicalVars.add(var.accept(Expressions.TO_STRING));
+                    lexicalVars = Stack.create(lexicalVars, var.accept(Expressions.TO_STRING));
                     Implementation l = exp.accept(this);
-                    lexicalVars.remove(lexicalVars.size() - 1);
-                    return s -> (Marker) a -> l.execute(new Stack(s, a));
+                    lexicalVars = lexicalVars.parent;
+                    return s -> (Marker) a -> l.execute(Stack.create(s, a));
                 }
             };
 
     public static Object eval(Expression input) {
-        return input.accept(COMPILER).execute(Stack.EMPTY);
+        return input.accept(COMPILER).execute(null);
     }
 }
