@@ -4,7 +4,7 @@ package lambda;
  * @author pmilne
  */
 public abstract class Expression {
-    public abstract <S> S accept(Visitor<S> visitor);
+    public abstract <T> T accept(Visitor<T> visitor);
 
     @Override
     public String toString() {
