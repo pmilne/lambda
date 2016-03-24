@@ -42,7 +42,6 @@ public class Test {
     }
 
     public static void main(String[] args) {
-        long start = System.currentTimeMillis();
         test("1 2", "1", "2");
         test("(lambda (x) x)", "(lambda (a) a)");
         test("((lambda (x) x) 1)", "1");
@@ -59,6 +58,7 @@ public class Test {
         test("((lambda (f) (f (f f f))) (lambda (f x) (f (f x))))", 256); // 2^8
         test("((lambda (f) (f f (f f))) (lambda (f x) (f (f x))))", 256); // 2^8
         System.out.println("Starting evaluator performance test (typical run time is ~70s)... ");
+        long start = System.currentTimeMillis();
         test("((lambda (f) (f f f (f f))) (lambda (f x) (f (f x))))", 0); // 2^32 about 1 min
         System.out.println("Time: " + (System.currentTimeMillis() - start)/1000.0 + "s");
     }
