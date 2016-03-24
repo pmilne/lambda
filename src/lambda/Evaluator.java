@@ -39,7 +39,7 @@ public class Evaluator {
     }
 
     public static interface Implementation {
-        public Object execute(Stack<Object> valueStack);
+        public Object eval(Stack<Object> valueStack);
     }
 
     // Used by the experimental 'Decompiler'.
@@ -63,14 +63,14 @@ public class Evaluator {
                     public Implementation application(Expression fun, Expression arg) {
                         Implementation fun0 = fun.accept(this);
                         Implementation arg0 = arg.accept(this);
-                        return (Stack<Object> values) -> ((Function) fun0.execute(values)).apply(arg0.execute(values));
+                        return (Stack<Object> values) -> ((Function) fun0.eval(values)).apply(arg0.eval(values));
                     }
 
                     @Override
                     public Implementation lambda(Expression var, Expression exp) {
                         String varName = var.accept(Expressions.TO_STRING);
                         Implementation exp0 = exp.accept(createCompiler(Stack.create(nameStack, varName)));
-                        return (Stack<Object> values) -> (Marker) arg -> exp0.execute(Stack.create(values, arg));
+                        return (Stack<Object> values) -> (Marker) (Object arg) -> exp0.eval(Stack.create(values, arg));
                     }
                 };
     }
@@ -83,6 +83,6 @@ public class Evaluator {
     });
 
     public static Object eval(Expression input) {
-        return input.accept(COMPILER).execute(null);
+        return input.accept(COMPILER).eval(null);
     }
 }
