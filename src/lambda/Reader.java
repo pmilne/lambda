@@ -60,7 +60,7 @@ public class Reader {
         public abstract T whiteSpace(String s);
     }
 
-    public static class Parser extends TokenVisitor<TokenVisitor> {
+    public static class Parser extends TokenVisitor<Parser> {
         @Override
         public Parser whiteSpace(String s) {
             return this;
