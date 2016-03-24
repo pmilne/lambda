@@ -50,27 +50,27 @@ public class Evaluator {
         return new Expression.Visitor<Implementation>() {
                     @Override
                     public Implementation constant(Object value) {
-                        return (Stack<Object> values) -> value;
+                        return (Stack<Object> env) -> value;
                     }
 
                     @Override
                     public Implementation symbol(String name) {
                         int index = nameStack.indexOf(name);
-                        return (Stack<Object> values) -> values.get(index);
+                        return (Stack<Object> env) -> env.get(index);
                     }
 
                     @Override
                     public Implementation application(Expression fun, Expression arg) {
                         Implementation fun0 = fun.accept(this);
                         Implementation arg0 = arg.accept(this);
-                        return (Stack<Object> values) -> ((Function) fun0.eval(values)).apply(arg0.eval(values));
+                        return (Stack<Object> env) -> ((Function) fun0.eval(env)).apply(arg0.eval(env));
                     }
 
                     @Override
                     public Implementation lambda(Expression var, Expression exp) {
                         String varName = var.accept(Expressions.TO_STRING);
                         Implementation exp0 = exp.accept(createCompiler(Stack.create(nameStack, varName)));
-                        return (Stack<Object> values) -> (Marker) (Object arg) -> exp0.eval(Stack.create(values, arg));
+                        return (Stack<Object> env) -> (Marker) (Object arg) -> exp0.eval(Stack.create(env, arg));
                     }
                 };
     }
