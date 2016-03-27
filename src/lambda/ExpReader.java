@@ -166,10 +166,7 @@ public class ExpReader {
                     @Override
                     public Parser number(String s) {
                         Expression arg2 = constructor.constant(Integer.parseInt(s));
-                        Reduction sumCloser = e -> sum1Parser(constructor.application(prd1, e), closer).sumOp(null);
-//                        Reduction parenCloser = e -> closer.reduce(constructor.application(prd1, e));
-                        Reduction parenCloser = e -> sum1Parser(constructor.application(prd1, e), closer).rParen(null);
-                        return prd1Parser(arg2, sumCloser, parenCloser);
+                        return prd1Parser(arg2, e -> sum1Parser(constructor.application(prd1, e), closer));
                     }
                 };
             }
@@ -181,7 +178,7 @@ public class ExpReader {
         };
     }
 
-    public Parser prd1Parser(Expression arg1, Reduction sumCloser, Reduction parenCloser) {
+    public Parser prd1Parser(Expression arg1, Reduction closer) {
         return new Parser() {
             @Override
             public Parser prodOp(String s) {
@@ -191,19 +188,19 @@ public class ExpReader {
                     @Override
                     public Parser number(String s) {
                         Expression arg2 = constructor.constant(Integer.parseInt(s));
-                        return prd1Parser(constructor.application(prd1, arg2), sumCloser, parenCloser);
+                        return prd1Parser(constructor.application(prd1, arg2), closer);
                     }
                 };
             }
 
             @Override
             public Parser sumOp(String s) {
-                return sumCloser.reduce(arg1);
+                return closer.reduce(arg1).sumOp(s);
             }
 
             @Override
             public Parser rParen(String s) {
-                return parenCloser.reduce(arg1);
+                return closer.reduce(arg1).rParen(s);
             }
         };
     }
