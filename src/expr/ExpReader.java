@@ -143,12 +143,12 @@ public class ExpReader {
     };
 
     public static abstract class DelegatingParser extends Parser {
+        public abstract Parser getDelegate();
+
         //        @Override
 //        public Parser whiteSpace(String s) {
 //            return getDelegate().whiteSpace(s);
 //        }
-        public abstract Parser getDelegate();
-
         @Override
         public Parser whiteSpace(String s) {
             return this;
