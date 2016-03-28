@@ -236,17 +236,20 @@ public class ExpReader {
         }
     }
 
-    public Parser sum0Parser(Reduction outer) {
-        return new Parser0(outer) {
+    public Parser parseNumber(Reduction fail, Reduction succeed) {
+        return new Parser0(fail) {
             @Override
             public Parser number(String s) {
-                Expression arg1 = constructor.constant(Integer.parseInt(s));
-                return sum1Parser(outer).reduce(arg1);
+                return succeed.reduce(constructor.constant(Integer.parseInt(s)));
             }
         };
     }
 
-    public Reduction sum1Parser(Reduction outer) {
+    public Parser parseSum(Reduction outer) {
+        return parseNumber(outer, parseSum1(outer));
+    }
+
+    public Reduction parseSum1(Reduction outer) {
         return new Reduction() {
             private Reduction inner = this; // doesn't seem to be possible to inline -- compiler bug?
             @Override
@@ -254,41 +257,35 @@ public class ExpReader {
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser sumOp(String s) {
-                        return new Parser0(outer) {
-                            @Override
-                            public Parser number(String s) {
-                                Expression op = constructor.constant(SUM);
-                                Expression sum1 = constructor.application(op, arg1);
-                                Expression arg2 = constructor.constant(Integer.parseInt(s));
-                                return prd1Parser(e -> reduce(constructor.application(sum1, e))).reduce(arg2);
-                            }
-                        };
+                        Expression op = constructor.constant(SUM);
+                        Expression sum1 = constructor.application(op, arg1);
+                        return parseNumber(outer, parseProduct1(e -> reduce(constructor.application(sum1, e))));
                     }
 
                     @Override
                     public Parser prodOp(String s) {
-                        return prd1Parser(inner).reduce(arg1).prodOp(s);
+                        return parseProduct1(inner).reduce(arg1).prodOp(s);
                     }
                 };
             }
         };
     }
 
-    public Reduction prd1Parser(Reduction outer) {
+    public Reduction parseProduct1(Reduction outer) {
         return new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser prodOp(String s) {
+                        Expression op = constructor.constant(PRD);
+                        Expression prd1 = constructor.application(op, arg1);
                         return new Parser0(outer) {
                             @Override
                             public Parser number(String s) {
-                                Expression op = constructor.constant(PRD);
-                                Expression prd1 = constructor.application(op, arg1);
                                 Expression arg2 = constructor.constant(Integer.parseInt(s));
                                 return reduce(constructor.application(prd1, arg2));
-//                                return prd1Parser(e -> reduce(constructor.application(prd1, e))).reduce(arg2);
+//                                return parseProduct1(e -> reduce(constructor.application(prd1, e))).reduce(arg2);
                             }
                         };
                     }
@@ -317,7 +314,7 @@ public class ExpReader {
     }
 
     public void parse(CharSequence input, Processor<Expression> processor) {
-        lex(input, sum0Parser(new Reduction() { // don't seem to be able to use a lambda here
+        lex(input, parseSum(new Reduction() { // don't seem to be able to use a lambda here
             private Reduction that = this; // compiler bug?
 
             @Override
@@ -326,7 +323,7 @@ public class ExpReader {
                 return new DelegatingParser(ERROR) {
                     @Override
                     public Parser semicolon(String s) {
-                        return sum0Parser(that);
+                        return parseSum(that);
                     }
                 };
             }
