@@ -278,8 +278,8 @@ public class ExpReader {
                                 Expression op = constructor.constant(PRD);
                                 Expression prd1 = constructor.application(op, arg1);
                                 Expression arg2 = constructor.constant(Integer.parseInt(s));
-//                                return prd1Parser(e -> reduce(constructor.application(prd1, e))).reduce(arg2);
-                                return reduce(constructor.application(prd1, arg2));
+//                                return reduce(constructor.application(prd1, arg2));
+                                return prd1Parser(e -> reduce(constructor.application(prd1, e))).reduce(arg2);
                             }
                         };
                     }
