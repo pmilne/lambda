@@ -266,15 +266,7 @@ public class ExpReader {
 
                     @Override
                     public Parser prodOp(String s) {
-                        return new Parser0(outer) {
-                            @Override
-                            public Parser number(String s) {
-                                Expression op = constructor.constant(PRD);
-                                Expression prd1 = constructor.application(op, arg1);
-                                Expression arg2 = constructor.constant(Integer.parseInt(s));
-                                return prd1Parser(e -> reduce(constructor.application(prd1, e))).reduce(arg2);
-                            }
-                        };
+                        return prd1Parser(e -> reduce(e)).reduce(arg1).prodOp(s);
                     }
                 };
             }
