@@ -236,7 +236,7 @@ public class ExpReader {
         }
     }
 
-    public Parser number(Reduction outer) {
+    public Parser numberParser(Reduction outer) {
         return new Parser0(outer) {
             @Override
             public Parser number(String s) {
@@ -245,30 +245,30 @@ public class ExpReader {
         };
     }
 
-    private Parser product(Reduction outer) {
-        return number(new Reduction() {
+    private Parser productParser(Reduction outer) {
+        return numberParser(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser prodOp(String s) {
                         Expression prd1 = constructor.application(constructor.constant(PRD), arg1);
-                        return ExpReader.this.number(e -> reduce(constructor.application(prd1, e)));
+                        return numberParser(e -> reduce(constructor.application(prd1, e)));
                     }
                 };
             }
         });
     }
 
-    public Parser sum(Reduction outer) {
-        return product(new Reduction() {
+    public Parser sumParser(Reduction outer) {
+        return productParser(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) { // todo eliminate recursive call from below (?)
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser sumOp(String s) {
                         Expression sum1 = constructor.application(constructor.constant(SUM), arg1);
-                        return product(e -> reduce(constructor.application(sum1, e)));
+                        return productParser(e -> reduce(constructor.application(sum1, e)));
                     }
                 };
             }
@@ -295,7 +295,7 @@ public class ExpReader {
     }
 
     public void parse(CharSequence input, Processor<Expression> processor) {
-        lex(input, sum(new Reduction() {
+        lex(input, sumParser(new Reduction() {
             private Reduction that = this; // don't seem to be able to inline here -- compiler bug?
 
             @Override
@@ -304,7 +304,7 @@ public class ExpReader {
                 return new DelegatingParser(ERROR) {
                     @Override
                     public Parser semicolon(String s) {
-                        return sum(that);
+                        return sumParser(that);
                     }
                 };
             }
