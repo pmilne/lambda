@@ -236,24 +236,24 @@ public class ExpReader {
         }
     }
 
-    public Parser parseNumber(Reduction fail, Reduction succeed) {
-        return new Parser0(fail) {
+    public Parser parseNumber(Reduction outer) {
+        return new Parser0(outer) {
             @Override
             public Parser number(String s) {
-                return succeed.reduce(constructor.constant(Integer.parseInt(s)));
+                return outer.reduce(constructor.constant(Integer.parseInt(s)));
             }
         };
     }
 
-    private Parser parseProduct(Reduction fail, Reduction succeed) {
-        return parseNumber(fail, new Reduction() {
+    private Parser parseProduct(Reduction outer) {
+        return parseNumber(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
-                return new Parser1(succeed, arg1) {
+                return new Parser1(outer, arg1) {
                     @Override
                     public Parser prodOp(String s) {
                         Expression prd1 = constructor.application(constructor.constant(PRD), arg1);
-                        return parseNumber(outer, e -> reduce(constructor.application(prd1, e)));
+                        return parseNumber(e -> reduce(constructor.application(prd1, e)));
                     }
                 };
             }
@@ -261,14 +261,14 @@ public class ExpReader {
     }
 
     public Parser parseSum(Reduction outer) {
-        return parseProduct(outer, new Reduction() {
+        return parseProduct(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) { // todo eliminate recursive call from below (?)
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser sumOp(String s) {
                         Expression sum1 = constructor.application(constructor.constant(SUM), arg1);
-                        return parseProduct(outer, e -> reduce(constructor.application(sum1, e)));
+                        return parseProduct(e -> reduce(constructor.application(sum1, e)));
                     }
                 };
             }
