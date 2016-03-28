@@ -179,7 +179,7 @@ public class Reader {
 
             @Override
             public Parser lParen(String s) {
-                return funParser(e -> e != null ? argParser(e, closer) : this); // treat () as whitespace (!)
+                return funParser(e -> argParser(e, closer));
             }
 
             @Override
@@ -212,7 +212,7 @@ public class Reader {
 
             @Override
             public Parser lParen(String s) {
-                return funParser(e -> e != null ? rr(e) : this); // treat () as whitespace (!)
+                return funParser(e -> argParser(constructor.application(exp, e), closer));
             }
 
             @Override
@@ -227,7 +227,9 @@ public class Reader {
 
             @Override
             public Parser rParen(String s) {
-                return closer.reduce(exp);
+                Parser reduce = closer.reduce(exp);
+//                return reduce.rParen(s);
+                return reduce;
             }
         };
     }
