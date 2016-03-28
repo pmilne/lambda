@@ -56,10 +56,10 @@ public class TestExpReader {
     }
 
     public static void main(String[] args) {
-        test("1 + 2 * 3 )", "7");
-        test("1 + 2 * 3 * 4 )", "25");
-        test("1 + 2 + 3 * 4 )", "15");
-        test("1 * 2 + 3 )", "5");
-        test("1 * 2 + 3 * 4 + 5 )", "19");
+        test("1 + 2 * 3 ;", "7");
+        test("1 + 2 * 3 * 4 ;", "25");
+        test("1 + 2 + 3 * 4 ", "15");
+        test("1 * 2 + 3 ;", "5");
+        test("1 * 2 + 3 * 4 + 5 ;", "19");
     }
 }

@@ -53,6 +53,7 @@ public class ExpReader {
                 new TokenType("-?\\d+", Parser::number),
                 new TokenType("\\(", Parser::lParen),
                 new TokenType("\\)", Parser::rParen),
+                new TokenType("\\;", Parser::semicolon),
                 new TokenType("\\+", Parser::sumOp),
                 new TokenType("\\*", Parser::prodOp),
                 new TokenType("[a-zA-Z_]\\w*", Parser::symbol),
@@ -76,6 +77,8 @@ public class ExpReader {
         public abstract T lParen(String s);
 
         public abstract T rParen(String s);
+
+        public abstract T semicolon(String s);
 
         public abstract T number(String s);
 
@@ -119,6 +122,11 @@ public class ExpReader {
         }
 
         @Override
+        public Parser semicolon(String s) {
+            return error(s);
+        }
+
+        @Override
         public Parser sumOp(String s) {
             return error(s);
         }
@@ -139,6 +147,11 @@ public class ExpReader {
             public Parser number(String s) {
                 Expression arg1 = constructor.constant(Integer.parseInt(s));
                 return sum1Parser(arg1, closer);
+            }
+
+            @Override
+            public Parser semicolon(String s) {
+                return this;
             }
         };
     }
@@ -172,8 +185,8 @@ public class ExpReader {
             }
 
             @Override
-            public Parser rParen(String s) {
-                return closer.reduce(arg1);
+            public Parser semicolon(String s) {
+                return closer.reduce(arg1).semicolon(s);
             }
         };
     }
@@ -199,8 +212,8 @@ public class ExpReader {
             }
 
             @Override
-            public Parser rParen(String s) {
-                return closer.reduce(arg1).rParen(s);
+            public Parser semicolon(String s) {
+                return closer.reduce(arg1).semicolon(s);
             }
         };
     }
