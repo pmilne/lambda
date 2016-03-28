@@ -165,26 +165,26 @@ public class Reader {
     }
 
 
-    public Parser termParser(Reduction closer) {
+    public Parser termParser(Reduction outer) {
         return new DefaultParser() {
             @Override
             public Parser lParen(String s) {
                 return applicationParser(e -> new DefaultParser() {
                     @Override
                     public Parser rParen(String s) {
-                        return closer.reduce(e);
+                        return outer.reduce(e);
                     }
                 }).reduce(null);
             }
 
             @Override
             public Parser number(String s) {
-                return closer.reduce(constructor.constant(Integer.parseInt(s)));
+                return outer.reduce(constructor.constant(Integer.parseInt(s)));
             }
 
             @Override
             public Parser symbol(String s) {
-                return closer.reduce((constructor.symbol(s)));
+                return outer.reduce((constructor.symbol(s)));
             }
         };
     }
@@ -193,26 +193,26 @@ public class Reader {
         return e1 == null ? e2 : constructor.application(e1, e2);
     }
 
-    public Reduction applicationParser(Reduction closer) {
+    public Reduction applicationParser(Reduction outer) {
         return new Reduction() {
             @Override
             public Parser reduce(Expression exp) {
                 return new DelegatingParser(termParser(e -> reduce(consIfNecessary(exp, e)))) {
                     @Override
                     public Parser rParen(String s) {
-                        return closer.reduce(exp).rParen(s);
+                        return outer.reduce(exp).rParen(s);
                     }
 
                     @Override
                     public Parser lambda(String name) {
-                        return lambdaParser(closer);
+                        return lambdaParser(outer);
                     }
                 };
             }
         };
     }
 
-    private Parser lambdaParser(Reduction closer) {
+    private Parser lambdaParser(Reduction outer) {
         return new DefaultParser() {
             @Override
             public Parser lParen(String s) {
@@ -221,12 +221,12 @@ public class Reader {
 
             @Override
             public Parser symbol(String s) { // create nested lambdas using right-association
-                return lambdaParser(e -> closer.reduce(constructor.lambda(constructor.symbol(s), e)));
+                return lambdaParser(e -> outer.reduce(constructor.lambda(constructor.symbol(s), e)));
             }
 
             @Override
             public Parser rParen(String s) {
-                return termParser(closer);
+                return termParser(outer);
             }
         };
     }
