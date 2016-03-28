@@ -181,17 +181,17 @@ public class Reader {
 
     public Parser applicationParser(Expression exp, Reduction closer) {
         return new DefaultParser() {
-            private Expression cons2(Expression e) {
+            private Expression consIfNotFirst(Expression e) {
                 return exp == null ? e : constructor.application(exp, e);
             }
 
-            private Parser cons(Expression e) {
-                return applicationParser(cons2(e), closer);
+            private Parser absorb(Expression e) {
+                return applicationParser(consIfNotFirst(e), closer);
             }
 
             @Override
             public Parser lParen(String s) {
-                return termParser(e -> cons(e)).lParen(s);
+                return termParser(e -> absorb(e)).lParen(s);
 //                return closer.reduce(exp).lParen(s);
 //                return termParser(closer).lParen(s);
 //                return cons(termParser(closer));
@@ -199,12 +199,12 @@ public class Reader {
 
             @Override
             public Parser number(String s) {
-                return cons(constructor.constant(Integer.parseInt(s)));
+                return absorb(constructor.constant(Integer.parseInt(s)));
             }
 
             @Override
             public Parser symbol(String s) {
-                return cons(constructor.symbol(s));
+                return absorb(constructor.symbol(s));
             }
 
             @Override
