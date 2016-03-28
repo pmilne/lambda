@@ -165,36 +165,28 @@ public class Reader {
     }
 
 
-    private class TermParser extends DefaultParser {
-        private final Reduction closer;
-
-        public TermParser(Reduction closer) {
-            this.closer = closer;
-        }
-
-        @Override
-        public Parser lParen(String s) {
-            return applicationParser(null, e -> new DefaultParser() {
-                @Override
-                public Parser rParen(String s) {
-                    return closer.reduce(e);
-                }
-            });
-        }
-
-        @Override
-        public Parser number(String s) {
-            return closer.reduce(constructor.constant(Integer.parseInt(s)));
-        }
-
-        @Override
-        public Parser symbol(String s) {
-            return closer.reduce((constructor.symbol(s)));
-        }
-    }
-
     public Parser termParser(Reduction closer) {
-        return new TermParser(closer);
+        return new DefaultParser() {
+            @Override
+            public Parser lParen(String s) {
+                return applicationParser(null, e -> new DefaultParser() {
+                    @Override
+                    public Parser rParen(String s) {
+                        return closer.reduce(e);
+                    }
+                });
+            }
+
+            @Override
+            public Parser number(String s) {
+                return closer.reduce(constructor.constant(Integer.parseInt(s)));
+            }
+
+            @Override
+            public Parser symbol(String s) {
+                return closer.reduce((constructor.symbol(s)));
+            }
+        };
     }
 
     private Expression consIfNecessary(Expression e1, Expression e2) {
