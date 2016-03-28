@@ -197,7 +197,7 @@ public class Reader {
         return new Reduction() {
             @Override
             public Parser reduce(Expression exp) {
-                return new DelegatingParser(termParser(e -> applicationParser(closer).reduce(consIfNecessary(exp, e)))) {
+                return new DelegatingParser(termParser(e -> reduce(consIfNecessary(exp, e)))) {
                     @Override
                     public Parser rParen(String s) {
                         return closer.reduce(exp).rParen(s);
