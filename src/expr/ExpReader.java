@@ -260,9 +260,10 @@ public class ExpReader {
         });
     }
 
-    public Reduction parseSum1(Reduction outer) {
-        return new Reduction() {
+    public Parser parseSum(Reduction outer) {
+        return parseNumber(outer, new Reduction() {
             private Reduction inner = this; // doesn't seem to be possible to inline -- compiler bug?
+
             @Override
             public Parser reduce(Expression arg1) { // todo eliminate recursive call from below (?)
                 return new Parser1(outer, arg1) {
@@ -280,11 +281,7 @@ public class ExpReader {
                     }
                 };
             }
-        };
-    }
-
-    public Parser parseSum(Reduction outer) {
-        return parseNumber(outer, parseSum1(outer));
+        });
     }
 
     public static void lex(CharSequence input, Parser parser) {
