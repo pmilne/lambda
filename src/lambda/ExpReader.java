@@ -91,49 +91,77 @@ public class ExpReader {
         public abstract T whiteSpace(String s);
     }
 
-    public static class Parser extends TokenVisitor<Parser> {
+    public static abstract class Parser extends TokenVisitor<Parser> {
+        //        @Override
+//        public Parser whiteSpace(String s) {
+//            return getDelegate().whiteSpace(s);
+//        }
+        public abstract Parser getDelegate();
+
         @Override
         public Parser whiteSpace(String s) {
             return this;
         }
 
-        public Parser error(String s) {
-            throw new RuntimeException("Syntax error: " + s);
-        }
-
         @Override
         public Parser symbol(String s) {
-            return error(s);
+            return getDelegate().symbol(s);
         }
 
         @Override
         public Parser number(String s) {
-            return error(s);
+            return getDelegate().number(s);
         }
 
         @Override
         public Parser lParen(String s) {
-            return error(s);
+            return getDelegate().lParen(s);
         }
 
         @Override
         public Parser rParen(String s) {
-            return error(s);
+            return getDelegate().rParen(s);
         }
 
         @Override
         public Parser semicolon(String s) {
-            return error(s);
+            return getDelegate().semicolon(s);
         }
 
         @Override
         public Parser sumOp(String s) {
-            return error(s);
+            return getDelegate().sumOp(s);
         }
 
         @Override
         public Parser prodOp(String s) {
-            return error(s);
+            return getDelegate().prodOp(s);
+        }
+    }
+
+    public static class Parser0 extends Parser {
+        public final Reduction closer;
+
+        public Parser0(Reduction closer) {
+            this.closer = closer;
+        }
+
+        public Parser getDelegate() {
+            return closer.reduce(null);
+        }
+    }
+
+    public static class Parser1 extends Parser {
+        public final Expression exp;
+        public final Reduction closer;
+
+        public Parser1(Expression exp, Reduction closer) {
+            this.exp = exp;
+            this.closer = closer;
+        }
+
+        public Parser getDelegate() {
+            return closer.reduce(exp);
         }
     }
 
@@ -142,7 +170,7 @@ public class ExpReader {
     }
 
     public Parser sum0Parser(Reduction closer) {
-        return new Parser() {
+        return new Parser0(closer) {
             @Override
             public Parser number(String s) {
                 Expression arg1 = constructor.constant(Integer.parseInt(s));
@@ -157,12 +185,12 @@ public class ExpReader {
     }
 
     public Parser sum1Parser(Expression arg1, Reduction closer) {
-        return new Parser() {
+        return new Parser1(arg1, closer) {
             @Override
             public Parser sumOp(String s) {
                 Expression op = constructor.constant(SUM);
                 Expression sum1 = constructor.application(op, arg1);
-                return new Parser() {
+                return new Parser0(closer) {
                     @Override
                     public Parser number(String s) {
                         Expression arg2 = constructor.constant(Integer.parseInt(s));
@@ -175,7 +203,7 @@ public class ExpReader {
             public Parser prodOp(String s) {
                 Expression op = constructor.constant(PRD);
                 Expression prd1 = constructor.application(op, arg1);
-                return new Parser() {
+                return new Parser0(closer) {
                     @Override
                     public Parser number(String s) {
                         Expression arg2 = constructor.constant(Integer.parseInt(s));
@@ -183,37 +211,22 @@ public class ExpReader {
                     }
                 };
             }
-
-            @Override
-            public Parser semicolon(String s) {
-                return closer.reduce(arg1).semicolon(s);
-            }
         };
     }
 
     public Parser prd1Parser(Expression arg1, Reduction closer) {
-        return new Parser() {
+        return new Parser1(arg1, closer) {
             @Override
             public Parser prodOp(String s) {
                 Expression op = constructor.constant(PRD);
                 Expression prd1 = constructor.application(op, arg1);
-                return new Parser() {
+                return new Parser0(closer) {
                     @Override
                     public Parser number(String s) {
                         Expression arg2 = constructor.constant(Integer.parseInt(s));
                         return prd1Parser(constructor.application(prd1, arg2), closer);
                     }
                 };
-            }
-
-            @Override
-            public Parser sumOp(String s) {
-                return closer.reduce(arg1).sumOp(s);
-            }
-
-            @Override
-            public Parser semicolon(String s) {
-                return closer.reduce(arg1).semicolon(s);
             }
         };
     }
