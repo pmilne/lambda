@@ -249,7 +249,7 @@ public class ExpReader {
     public Reduction sum1Parser(Reduction outer) {
         return new Reduction() {
             @Override
-            public Parser reduce(Expression arg1) {
+            public Parser reduce(Expression arg1) { // todo eliminate recursive call from below (?)
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser sumOp(String s) {
