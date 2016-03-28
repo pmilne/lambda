@@ -197,7 +197,7 @@ public class ExpReader {
                             @Override
                             public Parser number(String s) {
                                 Expression arg2 = constructor.constant(Integer.parseInt(s));
-                                return prd1Parser(e -> sum1Parser(closer).reduce(constructor.application(sum1, e)), arg2);
+                                return prd1Parser(e -> reduce(constructor.application(sum1, e)), arg2);
                             }
                         };
                     }
@@ -210,7 +210,7 @@ public class ExpReader {
                             @Override
                             public Parser number(String s) {
                                 Expression arg2 = constructor.constant(Integer.parseInt(s));
-                                return prd1Parser(e -> sum1Parser(closer).reduce(constructor.application(prd1, e)), arg2);
+                                return prd1Parser(e -> reduce(constructor.application(prd1, e)), arg2);
                             }
                         };
                     }
