@@ -4,6 +4,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * A side-effect free parser of lambda expressions. Unclear how it works. Hoping to simplify...
+ *
  * @author pmilne
  */
 @SuppressWarnings("UnnecessaryInterfaceModifier")
