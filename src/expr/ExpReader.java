@@ -253,7 +253,7 @@ public class ExpReader {
                     @Override
                     public Parser prodOp(String s) {
                         Expression prd1 = constructor.application(constructor.constant(PRD), arg1);
-                        return parseProduct(outer, e -> reduce(constructor.application(prd1, e)));
+                        return parseNumber(outer, e -> reduce(constructor.application(prd1, e)));
                     }
                 };
             }
