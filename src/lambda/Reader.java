@@ -207,7 +207,7 @@ public class Reader {
 
             @Override
             public Parser lParen(String s) {
-                return funParser(e -> argParser(constructor.application(exp, e), closer));
+                return funParser(e -> rr(e));
             }
 
             @Override
