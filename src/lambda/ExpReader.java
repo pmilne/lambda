@@ -153,7 +153,7 @@ public class ExpReader {
                     @Override
                     public Parser number(String s) {
                         Expression arg2 = constructor.constant(Integer.parseInt(s));
-                        return sum1Parser(arg2, e -> closer.reduce(constructor.application(sum1, e)));
+                        return prd1Parser(arg2, e -> sum1Parser(constructor.application(sum1, e), closer));
                     }
                 };
             }
