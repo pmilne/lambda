@@ -8,6 +8,7 @@ import java.util.function.Function;
 public class Test {
     public static final Expression ZERO = Expressions.CONSTRUCTOR.constant(0);
     public static final Expression INC = Expressions.CONSTRUCTOR.constant((Function<Integer, Integer>) x -> x + 1);
+    public static final boolean TEST_PERFORMANCE = false;
 
     public static int asInteger(Object o) {
         Expression.Visitor<Expression> c = Expressions.CONSTRUCTOR;
@@ -75,7 +76,7 @@ public class Test {
         test("((lambda (f) (f f (f f))) (lambda (f x) (f (f x))))", 256); // 2^8
         test("(lambda (x) c)", RuntimeException.class);
 //        test("1 2", "1", "2");
-        if (false) {
+        if (TEST_PERFORMANCE) {
             System.out.println("Starting evaluator performance test (typical run time is ~70s)... ");
             long start = System.currentTimeMillis();
             test("((lambda (f) (f f f (f f))) (lambda (f x) (f (f x))))", 0); // 2^32 about 1 min
