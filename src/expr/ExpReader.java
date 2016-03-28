@@ -203,7 +203,14 @@ public class ExpReader {
         public Parser reduce(Expression e);
     }
 
-    public static class Parser0 extends DelegatingParser0 {
+    public static abstract class ParserBase extends DelegatingParser0 {
+        @Override
+        public Parser whiteSpace(String s) {
+            return this;
+        }
+    }
+
+    public static class Parser0 extends ParserBase {
         public final Reduction outer;
 
         public Parser0(Reduction outer) {
@@ -213,14 +220,9 @@ public class ExpReader {
         public Parser getDelegate() {
             return outer.reduce(null);
         }
-
-        @Override
-        public Parser whiteSpace(String s) {
-            return this;
-        }
     }
 
-    public static class Parser1 extends DelegatingParser0 {
+    public static class Parser1 extends ParserBase {
         public final Reduction outer;
         public final Expression exp;
 
@@ -231,11 +233,6 @@ public class ExpReader {
 
         public Parser getDelegate() {
             return outer.reduce(exp);
-        }
-
-        @Override
-        public Parser whiteSpace(String s) {
-            return this;
         }
     }
 
