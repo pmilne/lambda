@@ -4,7 +4,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * A side-effect free parser of lambda expressions. Unclear how it works. Hoping to simplify...
+ * A side-effect free parser of lambda expressions. The goal is to get this into a canonical form which
+ * could be auto-generated from action-annotated BNF -- more simplification still needed.
  *
  * @author pmilne
  */
