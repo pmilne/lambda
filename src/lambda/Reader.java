@@ -101,8 +101,12 @@ public class Reader {
         }
     };
 
-    public static abstract class DelegatingParser extends Parser {
-        public abstract Parser getDelegate();
+    public static class DelegatingParser extends Parser {
+        public final Parser delegate;
+
+        public DelegatingParser(Parser delegate) {
+            this.delegate = delegate;
+        }
 
         //        @Override
 //        public Parser whiteSpace(String s) {
@@ -115,58 +119,33 @@ public class Reader {
 
         @Override
         public Parser symbol(String s) {
-            return getDelegate().symbol(s);
+            return delegate.symbol(s);
         }
 
         @Override
         public Parser number(String s) {
-            return getDelegate().number(s);
+            return delegate.number(s);
+        }
+
+        @Override
+        public Parser lambda(String s) {
+            return delegate.lambda(s);
         }
 
         @Override
         public Parser lParen(String s) {
-            return getDelegate().lParen(s);
+            return delegate.lParen(s);
         }
 
         @Override
         public Parser rParen(String s) {
-            return getDelegate().rParen(s);
+            return delegate.rParen(s);
         }
     }
 
-    public static class Parser00 extends Parser {
-        public Parser error(String s) {
-            throw new RuntimeException("Syntax error: " + s);
-        }
-
-        @Override
-        public Parser whiteSpace(String s) {
-            return this;
-        }
-
-        @Override
-        public Parser lambda(String s) { // in Scheme, "lambda" may also be used as a symbol
-            return symbol(s);
-        }
-
-        @Override
-        public Parser symbol(String s) {
-            return error(s);
-        }
-
-        @Override
-        public Parser number(String s) {
-            return error(s);
-        }
-
-        @Override
-        public Parser lParen(String s) {
-            return error(s);
-        }
-
-        @Override
-        public Parser rParen(String s) {
-            return error(s);
+    public static class Parser00 extends DelegatingParser {
+        public Parser00() {
+            super(ERROR);
         }
     }
 
