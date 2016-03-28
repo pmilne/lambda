@@ -108,13 +108,9 @@ public class Reader {
             this.delegate = delegate;
         }
 
-        //        @Override
-//        public Parser whiteSpace(String s) {
-//            return getDelegate().whiteSpace(s);
-//        }
         @Override
         public Parser whiteSpace(String s) {
-            return this;
+            return delegate.whiteSpace(s);
         }
 
         @Override
@@ -146,6 +142,11 @@ public class Reader {
     public static class DefaultParser extends DelegatingParser {
         public DefaultParser() {
             super(ERROR);
+        }
+
+        @Override
+        public Parser whiteSpace(String s) {
+            return this;
         }
     }
 
