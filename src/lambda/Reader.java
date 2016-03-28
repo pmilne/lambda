@@ -222,9 +222,7 @@ public class Reader {
 
             @Override
             public Parser rParen(String s) {
-                Parser reduce = closer.reduce(exp);
-//                return reduce.rParen(s);
-                return reduce;
+                return closer.reduce(exp);
             }
         };
     }
