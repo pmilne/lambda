@@ -248,6 +248,7 @@ public class ExpReader {
 
     public Reduction sum1Parser(Reduction outer) {
         return new Reduction() {
+            private Reduction inner = this; // doesn't seem to be possible to inline -- compiler bug?
             @Override
             public Parser reduce(Expression arg1) { // todo eliminate recursive call from below (?)
                 return new Parser1(outer, arg1) {
@@ -266,7 +267,7 @@ public class ExpReader {
 
                     @Override
                     public Parser prodOp(String s) {
-                        return prd1Parser(e -> reduce(e)).reduce(arg1).prodOp(s);
+                        return prd1Parser(inner).reduce(arg1).prodOp(s);
                     }
                 };
             }
