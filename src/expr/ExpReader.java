@@ -245,10 +245,6 @@ public class ExpReader {
         };
     }
 
-    private Parser parseProduct(Reduction fail, Reduction succeed) {
-        return parseNumber(fail, parseProduct1(succeed));
-    }
-
     public Reduction parseProduct1(Reduction outer) {
         return new Reduction() {
             @Override
@@ -264,8 +260,8 @@ public class ExpReader {
         };
     }
 
-    public Parser parseSum(Reduction outer) {
-        return parseNumber(outer, parseSum1(outer));
+    private Parser parseProduct(Reduction fail, Reduction succeed) {
+        return parseNumber(fail, parseProduct1(succeed));
     }
 
     public Reduction parseSum1(Reduction outer) {
@@ -289,6 +285,9 @@ public class ExpReader {
         };
     }
 
+    public Parser parseSum(Reduction outer) {
+        return parseNumber(outer, parseSum1(outer));
+    }
 
     public static void lex(CharSequence input, Parser parser) {
         Matcher matcher = Pattern.compile(getRegex()).matcher(input);
