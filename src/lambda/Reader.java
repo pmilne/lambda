@@ -194,7 +194,7 @@ public class Reader {
 
             @Override
             public Parser rParen(String s) {
-                return closer.reduce(null);
+                return closer.reduce(null).rParen(s);
             }
 
             @Override
@@ -241,7 +241,7 @@ public class Reader {
 
             @Override
             public Parser symbol(String s) { // create nested lambdas using right-association
-                return lambdaParser(exp -> closer.reduce(constructor.lambda(constructor.symbol(s), exp)));
+                return lambdaParser(e -> closer.reduce(constructor.lambda(constructor.symbol(s), e)));
             }
 
             @Override
