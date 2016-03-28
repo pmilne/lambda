@@ -251,12 +251,10 @@ public class Reader {
 
     public void parse(CharSequence input, Processor<Expression> processor) {
         lex(input, termParser(new Reduction() {
-            Reduction that = this;
-
             @Override
             public Parser reduce(Expression e) {
                 processor.process(e);
-                return termParser(that);
+                return termParser(this);
             }
         }));
     }
