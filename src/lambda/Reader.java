@@ -197,17 +197,12 @@ public class Reader {
         return new TermParser(closer);
     }
 
+    private Expression consIfNecessary(Expression e1, Expression e2) {
+        return e1 == null ? e2 : constructor.application(e1, e2);
+    }
+
     public Parser applicationParser(Expression exp, Reduction closer) {
-        return new DelegatingParser0() {
-            private Expression consIfNecessary(Expression e1, Expression e2) {
-                return e1 == null ? e2 : constructor.application(e1, e2);
-            }
-
-            @Override
-            public Parser getDelegate() {
-                return termParser(e -> applicationParser(consIfNecessary(exp, e), closer));
-            }
-
+        return new DelegatingParser(termParser(e -> applicationParser(consIfNecessary(exp, e), closer))) {
             @Override
             public Parser rParen(String s) {
                 return closer.reduce(exp).rParen(s);
