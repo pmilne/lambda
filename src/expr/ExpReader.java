@@ -257,8 +257,7 @@ public class ExpReader {
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser sumOp(String s) {
-                        Expression op = constructor.constant(SUM);
-                        Expression sum1 = constructor.application(op, arg1);
+                        Expression sum1 = constructor.application(constructor.constant(SUM), arg1);
                         return parseNumber(outer, parseProduct1(e -> reduce(constructor.application(sum1, e))));
                     }
 
@@ -278,16 +277,9 @@ public class ExpReader {
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser prodOp(String s) {
-                        Expression op = constructor.constant(PRD);
-                        Expression prd1 = constructor.application(op, arg1);
-                        return new Parser0(outer) {
-                            @Override
-                            public Parser number(String s) {
-                                Expression arg2 = constructor.constant(Integer.parseInt(s));
-                                return reduce(constructor.application(prd1, arg2));
-//                                return parseProduct1(e -> reduce(constructor.application(prd1, e))).reduce(arg2);
-                            }
-                        };
+                        Expression prd1 = constructor.application(constructor.constant(PRD), arg1);
+                        return parseNumber(outer, parseProduct1(e -> reduce(constructor.application(prd1, e))));
+//                        return parseNumber(outer, e -> reduce(constructor.application(prd1, e)));
                     }
                 };
             }
