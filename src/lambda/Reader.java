@@ -143,8 +143,8 @@ public class Reader {
         }
     }
 
-    public static class Parser00 extends DelegatingParser {
-        public Parser00() {
+    public static class DefaultParser extends DelegatingParser {
+        public DefaultParser() {
             super(ERROR);
         }
     }
@@ -154,7 +154,7 @@ public class Reader {
     }
 
     public Parser funParser(Reduction closer) {
-        return new Parser00() {
+        return new DefaultParser() {
 
             @Override
             public Parser lParen(String s) {
@@ -179,7 +179,7 @@ public class Reader {
     }
 
     public Parser argParser(Expression exp, Reduction closer) {
-        return new Parser00() {
+        return new DefaultParser() {
             private Parser apply(Expression e) {
                 return argParser(constructor.application(exp, e), closer);
             }
@@ -207,7 +207,7 @@ public class Reader {
     }
 
     private Parser lambdaParser(Reduction closer) {
-        return new Parser00() {
+        return new DefaultParser() {
             @Override
             public Parser lParen(String s) {
                 return this;
@@ -244,7 +244,7 @@ public class Reader {
     }
 
     public void parse(CharSequence input, Processor<Expression> processor) {
-        lex(input, new Parser00() {
+        lex(input, new DefaultParser() {
             @Override
             public Parser lParen(String s) {
                 return funParser(e -> {
