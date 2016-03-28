@@ -155,7 +155,7 @@ public class ExpReader {
         public final Expression exp;
         public final Reduction closer;
 
-        public Parser1(Expression exp, Reduction closer) {
+        public Parser1(Reduction closer, Expression exp) {
             this.exp = exp;
             this.closer = closer;
         }
@@ -174,7 +174,7 @@ public class ExpReader {
             @Override
             public Parser number(String s) {
                 Expression arg1 = constructor.constant(Integer.parseInt(s));
-                return sum1Parser(arg1, closer);
+                return sum1Parser(closer, arg1);
             }
 
             @Override
@@ -184,8 +184,8 @@ public class ExpReader {
         };
     }
 
-    public Parser sum1Parser(Expression arg1, Reduction closer) {
-        return new Parser1(arg1, closer) {
+    public Parser sum1Parser(Reduction closer, Expression arg1) {
+        return new Parser1(closer, arg1) {
             @Override
             public Parser sumOp(String s) {
                 Expression op = constructor.constant(SUM);
@@ -194,7 +194,7 @@ public class ExpReader {
                     @Override
                     public Parser number(String s) {
                         Expression arg2 = constructor.constant(Integer.parseInt(s));
-                        return prd1Parser(arg2, e -> sum1Parser(constructor.application(sum1, e), closer));
+                        return prd1Parser(e -> sum1Parser(closer, constructor.application(sum1, e)), arg2);
                     }
                 };
             }
@@ -207,15 +207,15 @@ public class ExpReader {
                     @Override
                     public Parser number(String s) {
                         Expression arg2 = constructor.constant(Integer.parseInt(s));
-                        return prd1Parser(arg2, e -> sum1Parser(constructor.application(prd1, e), closer));
+                        return prd1Parser(e -> sum1Parser(closer, constructor.application(prd1, e)), arg2);
                     }
                 };
             }
         };
     }
 
-    public Parser prd1Parser(Expression arg1, Reduction closer) {
-        return new Parser1(arg1, closer) {
+    public Parser prd1Parser(Reduction closer, Expression arg1) {
+        return new Parser1(closer, arg1) {
             @Override
             public Parser prodOp(String s) {
                 Expression op = constructor.constant(PRD);
@@ -224,7 +224,7 @@ public class ExpReader {
                     @Override
                     public Parser number(String s) {
                         Expression arg2 = constructor.constant(Integer.parseInt(s));
-                        return prd1Parser(constructor.application(prd1, arg2), closer);
+                        return prd1Parser(closer, constructor.application(prd1, arg2));
                     }
                 };
             }
