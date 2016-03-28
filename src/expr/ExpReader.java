@@ -261,7 +261,7 @@ public class ExpReader {
     }
 
     public Parser parseSum(Reduction outer) {
-        return parseNumber(outer, new Reduction() {
+        return parseProduct(outer, new Reduction() {
             @Override
             public Parser reduce(Expression arg1) { // todo eliminate recursive call from below (?)
                 return new Parser1(outer, arg1) {
@@ -269,12 +269,6 @@ public class ExpReader {
                     public Parser sumOp(String s) {
                         Expression sum1 = constructor.application(constructor.constant(SUM), arg1);
                         return parseProduct(outer, e -> reduce(constructor.application(sum1, e)));
-                    }
-
-                    @Override
-                    public Parser prodOp(String s) {
-                        Expression prd1 = constructor.application(constructor.constant(PRD), arg1);
-                        return parseProduct(outer, e -> reduce(constructor.application(prd1, e)));
                     }
                 };
             }
