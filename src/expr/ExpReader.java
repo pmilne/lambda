@@ -142,7 +142,7 @@ public class ExpReader {
         }
     };
 
-    public static abstract class DelegatingParser extends Parser {
+    public static abstract class DelegatingParser0 extends Parser {
         public abstract Parser getDelegate();
 
         //        @Override
@@ -190,11 +190,24 @@ public class ExpReader {
         }
     }
 
+    public static class DelegatingParser extends DelegatingParser0 {
+        public final Parser delegate;
+
+        public DelegatingParser(Parser delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public Parser getDelegate() {
+            return delegate;
+        }
+    }
+
     private static interface Reduction {
         public Parser reduce(Expression e);
     }
 
-    public static class Parser0 extends DelegatingParser {
+    public static class Parser0 extends DelegatingParser0 {
         public final Reduction closer;
 
         public Parser0(Reduction closer) {
@@ -206,7 +219,7 @@ public class ExpReader {
         }
     }
 
-    public static class Parser1 extends DelegatingParser {
+    public static class Parser1 extends DelegatingParser0 {
         public final Expression exp;
         public final Reduction closer;
 
@@ -314,12 +327,7 @@ public class ExpReader {
             @Override
             public Parser reduce(Expression e) {
                 processor.process(e);
-                return new DelegatingParser() {
-                    @Override
-                    public Parser getDelegate() {
-                        return ERROR;
-                    }
-
+                return new DelegatingParser(ERROR) {
                     @Override
                     public Parser semicolon(String s) {
                         return sum0Parser(that);
