@@ -176,23 +176,20 @@ public class Reader {
 
     public Parser funParser(Reduction closer) {
         return new Parser00() {
-            protected Parser rr(Expression e) {
-                return argParser(e, closer);
-            }
 
             @Override
             public Parser lParen(String s) {
-                return funParser(e -> e != null ? rr(e) : this); // treat () as whitespace (!)
+                return funParser(e -> e != null ? argParser(e, closer) : this); // treat () as whitespace (!)
             }
 
             @Override
             public Parser number(String s) {
-                return rr(constructor.constant(Integer.parseInt(s)));
+                return argParser(constructor.constant(Integer.parseInt(s)), closer);
             }
 
             @Override
             public Parser symbol(String s) {
-                return rr(constructor.symbol(s));
+                return argParser(constructor.symbol(s), closer);
             }
 
             @Override
