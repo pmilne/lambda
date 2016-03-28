@@ -57,6 +57,7 @@ public class Test {
 
     public static void main(String[] args) {
 //        test("1 2", "1", "2");
+//        test("(1 2 (3 4))", "(1 2 (3 4))");
         test("(lambda (x) x)", "(lambda (a) a)");
         test("((lambda (x) x) 1)", "1");
         test("((lambda (x) x) (lambda (x) x))", "(lambda (a) a)");

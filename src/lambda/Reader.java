@@ -193,11 +193,6 @@ public class Reader {
             }
 
             @Override
-            public Parser rParen(String s) {
-                return closer.reduce(null).rParen(s);
-            }
-
-            @Override
             public Parser lambda(String name) {
                 return lambdaParser(closer);
             }
