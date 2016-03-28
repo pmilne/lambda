@@ -94,6 +94,55 @@ public class ExpReader {
     }
 
     public static abstract class Parser extends TokenVisitor<Parser> {
+    }
+
+    public static Parser ERROR = new Parser() {
+        private Parser error(String s) {
+            throw new RuntimeException("Syntax error: " + s);
+        }
+
+        @Override
+        public Parser lParen(String s) {
+            return error(s);
+        }
+
+        @Override
+        public Parser rParen(String s) {
+            return error(s);
+        }
+
+        @Override
+        public Parser semicolon(String s) {
+            return error(s);
+        }
+
+        @Override
+        public Parser number(String s) {
+            return error(s);
+        }
+
+        @Override
+        public Parser sumOp(String s) {
+            return error(s);
+        }
+
+        @Override
+        public Parser prodOp(String s) {
+            return error(s);
+        }
+
+        @Override
+        public Parser symbol(String s) {
+            return error(s);
+        }
+
+        @Override
+        public Parser whiteSpace(String s) {
+            return error(s);
+        }
+    };
+
+    public static abstract class DelegatingParser extends Parser {
         //        @Override
 //        public Parser whiteSpace(String s) {
 //            return getDelegate().whiteSpace(s);
@@ -141,7 +190,11 @@ public class ExpReader {
         }
     }
 
-    public static class Parser0 extends Parser {
+    private static interface Reduction {
+        public Parser reduce(Expression e);
+    }
+
+    public static class Parser0 extends DelegatingParser {
         public final Reduction closer;
 
         public Parser0(Reduction closer) {
@@ -153,7 +206,7 @@ public class ExpReader {
         }
     }
 
-    public static class Parser1 extends Parser {
+    public static class Parser1 extends DelegatingParser {
         public final Expression exp;
         public final Reduction closer;
 
@@ -167,21 +220,12 @@ public class ExpReader {
         }
     }
 
-    private static interface Reduction {
-        public Parser reduce(Expression e);
-    }
-
     public Parser sum0Parser(Reduction closer) {
         return new Parser0(closer) {
             @Override
             public Parser number(String s) {
                 Expression arg1 = constructor.constant(Integer.parseInt(s));
                 return sum1Parser(closer).reduce(arg1);
-            }
-
-            @Override
-            public Parser semicolon(String s) {
-                return this;
             }
         };
     }
@@ -264,10 +308,22 @@ public class ExpReader {
 
     public void parse(CharSequence input, Processor<Expression> processor) {
         lex(input, sum0Parser(new Reduction() { // don't seem to be able to use a lambda here
+            private Reduction that = this; // compiler bug?
+
             @Override
             public Parser reduce(Expression e) {
                 processor.process(e);
-                return sum0Parser(this);
+                return new DelegatingParser() {
+                    @Override
+                    public Parser getDelegate() {
+                        return ERROR;
+                    }
+
+                    @Override
+                    public Parser semicolon(String s) {
+                        return sum0Parser(that);
+                    }
+                };
             }
         }));
     }
