@@ -245,6 +245,25 @@ public class ExpReader {
         };
     }
 
+    private Parser parseProduct(Reduction fail, Reduction succeed) {
+        return parseNumber(fail, parseProduct1(succeed));
+    }
+
+    public Reduction parseProduct1(Reduction outer) {
+        return new Reduction() {
+            @Override
+            public Parser reduce(Expression arg1) {
+                return new Parser1(outer, arg1) {
+                    @Override
+                    public Parser prodOp(String s) {
+                        Expression prd1 = constructor.application(constructor.constant(PRD), arg1);
+                        return parseProduct(outer, e -> reduce(constructor.application(prd1, e)));
+                    }
+                };
+            }
+        };
+    }
+
     public Parser parseSum(Reduction outer) {
         return parseNumber(outer, parseSum1(outer));
     }
@@ -270,25 +289,6 @@ public class ExpReader {
         };
     }
 
-    private Parser parseProduct(Reduction fail, Reduction succeed) {
-        return parseNumber(fail, parseProduct1(succeed));
-    }
-
-    public Reduction parseProduct1(Reduction outer) {
-        return new Reduction() {
-            @Override
-            public Parser reduce(Expression arg1) {
-                return new Parser1(outer, arg1) {
-                    @Override
-                    public Parser prodOp(String s) {
-                        Expression prd1 = constructor.application(constructor.constant(PRD), arg1);
-                        return parseProduct(outer, e -> reduce(constructor.application(prd1, e)));
-//                        return parseNumber(outer, e -> reduce(constructor.application(prd1, e)));
-                    }
-                };
-            }
-        };
-    }
 
     public static void lex(CharSequence input, Parser parser) {
         Matcher matcher = Pattern.compile(getRegex()).matcher(input);
