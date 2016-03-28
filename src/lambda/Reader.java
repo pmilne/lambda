@@ -192,19 +192,16 @@ public class Reader {
             @Override
             public Parser lParen(String s) {
                 return termParser(e -> absorb(e)).lParen(s);
-//                return closer.reduce(exp).lParen(s);
-//                return termParser(closer).lParen(s);
-//                return cons(termParser(closer));
             }
 
             @Override
             public Parser number(String s) {
-                return absorb(constructor.constant(Integer.parseInt(s)));
+                return termParser(e -> absorb(e)).number(s);
             }
 
             @Override
             public Parser symbol(String s) {
-                return absorb(constructor.symbol(s));
+                return termParser(e -> absorb(e)).symbol(s);
             }
 
             @Override
