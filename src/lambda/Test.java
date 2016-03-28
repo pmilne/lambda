@@ -56,8 +56,9 @@ public class Test {
     }
 
     public static void main(String[] args) {
-//        test("1 2", "1", "2");
-//        test("(1 (2 3) ((4 5 6) 7))", "(1 2 (3 4))");
+//        test("1", "1");
+//        test("(1 2)", "");
+//        test("(1 (2 3) ((4 5 6) 7))", "");
         test("(lambda (x) x)", "(lambda (a) a)");
         test("((lambda (x) x) 1)", "1");
         test("((lambda (x) x) (lambda (x) x))", "(lambda (a) a)");
@@ -73,6 +74,7 @@ public class Test {
         test("((lambda (f) (f (f f f))) (lambda (f x) (f (f x))))", 256); // 2^8
         test("((lambda (f) (f f (f f))) (lambda (f x) (f (f x))))", 256); // 2^8
         test("(lambda (x) c)", RuntimeException.class);
+//        test("1 2", "1", "2");
         if (false) {
             System.out.println("Starting evaluator performance test (typical run time is ~70s)... ");
             long start = System.currentTimeMillis();

@@ -237,11 +237,11 @@ public class ExpReader {
                 return new Parser1(closer, arg1) {
                     @Override
                     public Parser sumOp(String s) {
-                        Expression op = constructor.constant(SUM);
-                        Expression sum1 = constructor.application(op, arg1);
                         return new Parser0(closer) {
                             @Override
                             public Parser number(String s) {
+                                Expression op = constructor.constant(SUM);
+                                Expression sum1 = constructor.application(op, arg1);
                                 Expression arg2 = constructor.constant(Integer.parseInt(s));
                                 return prd1Parser(e -> reduce(constructor.application(sum1, e))).reduce(arg2);
                             }
@@ -250,11 +250,11 @@ public class ExpReader {
 
                     @Override
                     public Parser prodOp(String s) {
-                        Expression op = constructor.constant(PRD);
-                        Expression prd1 = constructor.application(op, arg1);
                         return new Parser0(closer) {
                             @Override
                             public Parser number(String s) {
+                                Expression op = constructor.constant(PRD);
+                                Expression prd1 = constructor.application(op, arg1);
                                 Expression arg2 = constructor.constant(Integer.parseInt(s));
                                 return prd1Parser(e -> reduce(constructor.application(prd1, e))).reduce(arg2);
                             }
@@ -272,11 +272,11 @@ public class ExpReader {
                 return new Parser1(closer, arg1) {
                     @Override
                     public Parser prodOp(String s) {
-                        Expression op = constructor.constant(PRD);
-                        Expression prd1 = constructor.application(op, arg1);
                         return new Parser0(closer) {
                             @Override
                             public Parser number(String s) {
+                                Expression op = constructor.constant(PRD);
+                                Expression prd1 = constructor.application(op, arg1);
                                 Expression arg2 = constructor.constant(Integer.parseInt(s));
                                 return reduce(constructor.application(prd1, arg2));
                             }

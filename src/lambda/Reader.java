@@ -155,55 +155,66 @@ public class Reader {
         public Parser reduce(Expression e);
     }
 
-    public Parser funParser(Reduction closer) {
+    public Parser termParser(Reduction closer) {
         return new DefaultParser() {
-
             @Override
             public Parser lParen(String s) {
-                return funParser(e -> argParser(e, closer));
+                return applicationParser(null, e -> new DefaultParser() {
+                    @Override
+                    public Parser rParen(String s) {
+                        return closer.reduce(e);
+                    }
+                });
             }
 
             @Override
             public Parser number(String s) {
-                return argParser(constructor.constant(Integer.parseInt(s)), closer);
+                return closer.reduce(constructor.constant(Integer.parseInt(s)));
             }
 
             @Override
             public Parser symbol(String s) {
-                return argParser(constructor.symbol(s), closer);
+                return closer.reduce((constructor.symbol(s)));
+            }
+        };
+    }
+
+    public Parser applicationParser(Expression exp, Reduction closer) {
+        return new DefaultParser() {
+            private Expression cons2(Expression e) {
+                return exp == null ? e : constructor.application(exp, e);
+            }
+
+            private Parser cons(Expression e) {
+                return applicationParser(cons2(e), closer);
+            }
+
+            @Override
+            public Parser lParen(String s) {
+                return termParser(e -> cons(e)).lParen(s);
+//                return closer.reduce(exp).lParen(s);
+//                return termParser(closer).lParen(s);
+//                return cons(termParser(closer));
+            }
+
+            @Override
+            public Parser number(String s) {
+                return cons(constructor.constant(Integer.parseInt(s)));
+            }
+
+            @Override
+            public Parser symbol(String s) {
+                return cons(constructor.symbol(s));
+            }
+
+            @Override
+            public Parser rParen(String s) {
+                return closer.reduce(exp).rParen(s);
             }
 
             @Override
             public Parser lambda(String name) {
                 return lambdaParser(closer);
-            }
-        };
-    }
-
-    public Parser argParser(Expression exp, Reduction closer) {
-        return new DefaultParser() {
-            private Parser apply(Expression e) {
-                return argParser(constructor.application(exp, e), closer);
-            }
-
-            @Override
-            public Parser lParen(String s) {
-                return funParser(this::apply);
-            }
-
-            @Override
-            public Parser number(String s) {
-                return apply(constructor.constant(Integer.parseInt(s)));
-            }
-
-            @Override
-            public Parser symbol(String s) {
-                return apply(constructor.symbol(s));
-            }
-
-            @Override
-            public Parser rParen(String s) {
-                return closer.reduce(exp);
             }
         };
     }
@@ -222,7 +233,7 @@ public class Reader {
 
             @Override
             public Parser rParen(String s) {
-                return funParser(closer);
+                return termParser(closer);
             }
         };
     }
@@ -246,14 +257,14 @@ public class Reader {
     }
 
     public void parse(CharSequence input, Processor<Expression> processor) {
-        lex(input, new DefaultParser() {
+        lex(input, termParser(new Reduction() {
+            Reduction that = this;
+
             @Override
-            public Parser lParen(String s) {
-                return funParser(e -> {
-                    processor.process(e);
-                    return this;
-                });
+            public Parser reduce(Expression e) {
+                processor.process(e);
+                return termParser(that);
             }
-        });
+        }));
     }
 }
