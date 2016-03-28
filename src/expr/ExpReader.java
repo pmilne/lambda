@@ -295,8 +295,8 @@ public class ExpReader {
     }
 
     public void parse(CharSequence input, Processor<Expression> processor) {
-        lex(input, parseSum(new Reduction() { // don't seem to be able to use a lambda here
-            private Reduction that = this; // compiler bug?
+        lex(input, parseSum(new Reduction() {
+            private Reduction that = this; // don't seem to be able to inline here -- compiler bug?
 
             @Override
             public Parser reduce(Expression e) {
