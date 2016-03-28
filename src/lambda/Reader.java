@@ -102,7 +102,41 @@ public class Reader {
         }
     };
 
-    public static class DelegatingParser extends Parser {
+    public static abstract class DelegatingParser0 extends Parser {
+        public abstract Parser getDelegate();
+
+        @Override
+        public Parser whiteSpace(String s) {
+            return getDelegate().whiteSpace(s);
+        }
+
+        @Override
+        public Parser symbol(String s) {
+            return getDelegate().symbol(s);
+        }
+
+        @Override
+        public Parser number(String s) {
+            return getDelegate().number(s);
+        }
+
+        @Override
+        public Parser lambda(String s) {
+            return getDelegate().lambda(s);
+        }
+
+        @Override
+        public Parser lParen(String s) {
+            return getDelegate().lParen(s);
+        }
+
+        @Override
+        public Parser rParen(String s) {
+            return getDelegate().rParen(s);
+        }
+    }
+
+    public static class DelegatingParser extends DelegatingParser0 {
         public final Parser delegate;
 
         public DelegatingParser(Parser delegate) {
@@ -110,33 +144,8 @@ public class Reader {
         }
 
         @Override
-        public Parser whiteSpace(String s) {
-            return delegate.whiteSpace(s);
-        }
-
-        @Override
-        public Parser symbol(String s) {
-            return delegate.symbol(s);
-        }
-
-        @Override
-        public Parser number(String s) {
-            return delegate.number(s);
-        }
-
-        @Override
-        public Parser lambda(String s) {
-            return delegate.lambda(s);
-        }
-
-        @Override
-        public Parser lParen(String s) {
-            return delegate.lParen(s);
-        }
-
-        @Override
-        public Parser rParen(String s) {
-            return delegate.rParen(s);
+        public Parser getDelegate() {
+            return delegate;
         }
     }
 
@@ -155,53 +164,48 @@ public class Reader {
         public Parser reduce(Expression e);
     }
 
+
+    private class TermParser extends DefaultParser {
+        private final Reduction closer;
+
+        public TermParser(Reduction closer) {
+            this.closer = closer;
+        }
+
+        @Override
+        public Parser lParen(String s) {
+            return applicationParser(null, e -> new DefaultParser() {
+                @Override
+                public Parser rParen(String s) {
+                    return closer.reduce(e);
+                }
+            });
+        }
+
+        @Override
+        public Parser number(String s) {
+            return closer.reduce(constructor.constant(Integer.parseInt(s)));
+        }
+
+        @Override
+        public Parser symbol(String s) {
+            return closer.reduce((constructor.symbol(s)));
+        }
+    }
+
     public Parser termParser(Reduction closer) {
-        return new DefaultParser() {
-            @Override
-            public Parser lParen(String s) {
-                return applicationParser(null, e -> new DefaultParser() {
-                    @Override
-                    public Parser rParen(String s) {
-                        return closer.reduce(e);
-                    }
-                });
-            }
-
-            @Override
-            public Parser number(String s) {
-                return closer.reduce(constructor.constant(Integer.parseInt(s)));
-            }
-
-            @Override
-            public Parser symbol(String s) {
-                return closer.reduce((constructor.symbol(s)));
-            }
-        };
+        return new TermParser(closer);
     }
 
     public Parser applicationParser(Expression exp, Reduction closer) {
-        return new DefaultParser() {
-            private Expression consIfNotFirst(Expression e) {
-                return exp == null ? e : constructor.application(exp, e);
-            }
-
-            private Parser absorb(Expression e) {
-                return applicationParser(consIfNotFirst(e), closer);
+        return new DelegatingParser0() {
+            private Expression consIfNecessary(Expression e1, Expression e2) {
+                return e1 == null ? e2 : constructor.application(e1, e2);
             }
 
             @Override
-            public Parser lParen(String s) {
-                return termParser(e -> absorb(e)).lParen(s);
-            }
-
-            @Override
-            public Parser number(String s) {
-                return termParser(e -> absorb(e)).number(s);
-            }
-
-            @Override
-            public Parser symbol(String s) {
-                return termParser(e -> absorb(e)).symbol(s);
+            public Parser getDelegate() {
+                return termParser(e -> applicationParser(consIfNecessary(exp, e), closer));
             }
 
             @Override
