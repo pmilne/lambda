@@ -169,12 +169,12 @@ public class Reader {
         return new DefaultParser() {
             @Override
             public Parser lParen(String s) {
-                return applicationParser(null, e -> new DefaultParser() {
+                return applicationParser(e -> new DefaultParser() {
                     @Override
                     public Parser rParen(String s) {
                         return closer.reduce(e);
                     }
-                });
+                }).reduce(null);
             }
 
             @Override
@@ -193,16 +193,21 @@ public class Reader {
         return e1 == null ? e2 : constructor.application(e1, e2);
     }
 
-    public Parser applicationParser(Expression exp, Reduction closer) {
-        return new DelegatingParser(termParser(e -> applicationParser(consIfNecessary(exp, e), closer))) {
+    public Reduction applicationParser(Reduction closer) {
+        return new Reduction() {
             @Override
-            public Parser rParen(String s) {
-                return closer.reduce(exp).rParen(s);
-            }
+            public Parser reduce(Expression exp) {
+                return new DelegatingParser(termParser(e -> applicationParser(closer).reduce(consIfNecessary(exp, e)))) {
+                    @Override
+                    public Parser rParen(String s) {
+                        return closer.reduce(exp).rParen(s);
+                    }
 
-            @Override
-            public Parser lambda(String name) {
-                return lambdaParser(closer);
+                    @Override
+                    public Parser lambda(String name) {
+                        return lambdaParser(closer);
+                    }
+                };
             }
         };
     }
