@@ -201,23 +201,23 @@ public class Reader {
 
     public Parser argParser(Expression exp, Reduction closer) {
         return new Parser00() {
-            protected Parser rr(Expression e) {
+            private Parser apply(Expression e) {
                 return argParser(constructor.application(exp, e), closer);
             }
 
             @Override
             public Parser lParen(String s) {
-                return funParser(e -> rr(e));
+                return funParser(this::apply);
             }
 
             @Override
             public Parser number(String s) {
-                return rr(constructor.constant(Integer.parseInt(s)));
+                return apply(constructor.constant(Integer.parseInt(s)));
             }
 
             @Override
             public Parser symbol(String s) {
-                return rr(constructor.symbol(s));
+                return apply(constructor.symbol(s));
             }
 
             @Override
