@@ -245,11 +245,11 @@ public class ExpReader {
         };
     }
 
-    public Reduction parseProduct1(Reduction outer) {
-        return new Reduction() {
+    private Parser parseProduct(Reduction fail, Reduction succeed) {
+        return parseNumber(fail, new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
-                return new Parser1(outer, arg1) {
+                return new Parser1(succeed, arg1) {
                     @Override
                     public Parser prodOp(String s) {
                         Expression prd1 = constructor.application(constructor.constant(PRD), arg1);
@@ -257,11 +257,7 @@ public class ExpReader {
                     }
                 };
             }
-        };
-    }
-
-    private Parser parseProduct(Reduction fail, Reduction succeed) {
-        return parseNumber(fail, parseProduct1(succeed));
+        });
     }
 
     public Reduction parseSum1(Reduction outer) {
@@ -278,7 +274,9 @@ public class ExpReader {
 
                     @Override
                     public Parser prodOp(String s) {
-                        return parseProduct1(inner).reduce(arg1).prodOp(s);
+//                        return parseProduct1(inner).reduce(arg1).prodOp(s);
+                        Expression prd1 = constructor.application(constructor.constant(PRD), arg1);
+                        return parseProduct(outer, e -> reduce(constructor.application(prd1, e)));
                     }
                 };
             }
