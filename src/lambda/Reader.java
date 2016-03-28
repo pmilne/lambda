@@ -62,14 +62,86 @@ public class Reader {
         public abstract T whiteSpace(String s);
     }
 
-    public static class Parser extends TokenVisitor<Parser> {
+    public static abstract class Parser extends TokenVisitor<Parser> {
+    }
+
+    public static Parser ERROR = new Parser() {
+        private Parser error(String s) {
+            throw new RuntimeException("Syntax error: " + s);
+        }
+
+        @Override
+        public Parser lParen(String s) {
+            return error(s);
+        }
+
+        @Override
+        public Parser rParen(String s) {
+            return error(s);
+        }
+
+        @Override
+        public Parser lambda(String s) {
+            return error(s);
+        }
+
+        @Override
+        public Parser number(String s) {
+            return error(s);
+        }
+
+        @Override
+        public Parser symbol(String s) {
+            return error(s);
+        }
+
+        @Override
+        public Parser whiteSpace(String s) {
+            return error(s);
+        }
+    };
+
+    public static abstract class DelegatingParser extends Parser {
+        public abstract Parser getDelegate();
+
+        //        @Override
+//        public Parser whiteSpace(String s) {
+//            return getDelegate().whiteSpace(s);
+//        }
         @Override
         public Parser whiteSpace(String s) {
             return this;
         }
 
+        @Override
+        public Parser symbol(String s) {
+            return getDelegate().symbol(s);
+        }
+
+        @Override
+        public Parser number(String s) {
+            return getDelegate().number(s);
+        }
+
+        @Override
+        public Parser lParen(String s) {
+            return getDelegate().lParen(s);
+        }
+
+        @Override
+        public Parser rParen(String s) {
+            return getDelegate().rParen(s);
+        }
+    }
+
+    public static class Parser00 extends Parser {
         public Parser error(String s) {
             throw new RuntimeException("Syntax error: " + s);
+        }
+
+        @Override
+        public Parser whiteSpace(String s) {
+            return this;
         }
 
         @Override
@@ -102,31 +174,27 @@ public class Reader {
         public Parser reduce(Expression e);
     }
 
-    public class ApplicationParser extends Parser {
-        public final Reduction reduction;
-
-        public ApplicationParser(Reduction reduction) {
-            this.reduction = reduction;
-        }
-
-        @Override
-        public Parser lParen(String s) {
-            return funParser(e -> e != null ? reduction.reduce(e) : this); // treat () as whitespace (!)
-        }
-
-        @Override
-        public Parser symbol(String s) {
-            return reduction.reduce(constructor.symbol(s));
-        }
-
-        @Override
-        public Parser number(String s) {
-            return reduction.reduce(constructor.constant(Integer.parseInt(s)));
-        }
-    }
-
     public Parser funParser(Reduction closer) {
-        return new ApplicationParser(e -> argParser(e, closer)) {
+        return new Parser00() {
+            protected Parser rr(Expression e) {
+                return argParser(e, closer);
+            }
+
+            @Override
+            public Parser lParen(String s) {
+                return funParser(e -> e != null ? rr(e) : this); // treat () as whitespace (!)
+            }
+
+            @Override
+            public Parser number(String s) {
+                return rr(constructor.constant(Integer.parseInt(s)));
+            }
+
+            @Override
+            public Parser symbol(String s) {
+                return rr(constructor.symbol(s));
+            }
+
             @Override
             public Parser rParen(String s) {
                 return closer.reduce(null);
@@ -140,7 +208,26 @@ public class Reader {
     }
 
     public Parser argParser(Expression exp, Reduction closer) {
-        return new ApplicationParser(e -> argParser(constructor.application(exp, e), closer)) {
+        return new Parser00() {
+            protected Parser rr(Expression e) {
+                return argParser(constructor.application(exp, e), closer);
+            }
+
+            @Override
+            public Parser lParen(String s) {
+                return funParser(e -> e != null ? rr(e) : this); // treat () as whitespace (!)
+            }
+
+            @Override
+            public Parser number(String s) {
+                return rr(constructor.constant(Integer.parseInt(s)));
+            }
+
+            @Override
+            public Parser symbol(String s) {
+                return rr(constructor.symbol(s));
+            }
+
             @Override
             public Parser rParen(String s) {
                 return closer.reduce(exp);
@@ -149,7 +236,7 @@ public class Reader {
     }
 
     private Parser lambdaParser(Reduction closer) {
-        return new Parser() {
+        return new Parser00() {
             @Override
             public Parser lParen(String s) {
                 return this;
@@ -186,12 +273,14 @@ public class Reader {
     }
 
     public void parse(CharSequence input, Processor<Expression> processor) {
-        lex(input, new ApplicationParser(new Reduction() { // don't seem to be able to use a lambda here
+        lex(input, new Parser00() {
             @Override
-            public Parser reduce(Expression e) {
-                processor.process(e);
-                return new ApplicationParser(this);
+            public Parser lParen(String s) {
+                return funParser(e -> {
+                    processor.process(e);
+                    return this;
+                });
             }
-        }));
+        });
     }
 }
