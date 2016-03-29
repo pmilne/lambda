@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  *
  * @author pmilne
  */
-@SuppressWarnings("UnnecessaryInterfaceModifier")
+@SuppressWarnings("UnnecessaryInterfaceModifier, WeakerAccess")
 public class Reader {
     public final Expression.Visitor<Expression> constructor;
 
