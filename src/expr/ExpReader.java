@@ -242,6 +242,16 @@ public class ExpReader {
             public Parser number(String s) {
                 return outer.reduce(constructor.constant(Integer.parseInt(s)));
             }
+
+            @Override
+            public Parser lParen(String s) {
+                return sumParser(e -> new Parser0(outer) {
+                    @Override
+                    public Parser rParen(String s) {
+                        return outer.reduce(e);
+                    }
+                });
+            }
         };
     }
 
