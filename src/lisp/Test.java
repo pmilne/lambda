@@ -8,11 +8,11 @@ import lambda.*;
  * @author pmilne
  */
 public class Test {
-    public static final Expression ZERO = Expressions.CONSTRUCTOR.constant(0);
-    public static final Expression INC = Expressions.CONSTRUCTOR.constant((Function<Integer, Integer>) x -> x + 1);
-    public static final boolean TEST_PERFORMANCE = false;
+    private static final Expression ZERO = Expressions.CONSTRUCTOR.constant(0);
+    private static final Expression INC = Expressions.CONSTRUCTOR.constant((Function<Integer, Integer>) x -> x + 1);
+    private static final boolean TEST_PERFORMANCE = false;
 
-    public static int asInteger(Object o) {
+    private static int asInteger(Object o) {
         Expression.Visitor<Expression> c = Expressions.CONSTRUCTOR;
         return (int) Evaluator.eval(c.application(c.application(c.constant(o), INC), ZERO));
     }
