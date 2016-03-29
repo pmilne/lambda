@@ -174,7 +174,7 @@ public class Reader {
                     public Parser rParen(String s) {
                         return outer.reduce(e);
                     }
-                }).reduce(null);
+                });
             }
 
             @Override
@@ -191,25 +191,6 @@ public class Reader {
 
     private Expression consIfNecessary(Expression e1, Expression e2) {
         return e1 == null ? e2 : constructor.application(e1, e2);
-    }
-
-    public Reduction applicationParser(Reduction outer) {
-        return new Reduction() {
-            @Override
-            public Parser reduce(Expression exp) {
-                return new DelegatingParser(termParser(e -> reduce(consIfNecessary(exp, e)))) {
-                    @Override
-                    public Parser rParen(String s) {
-                        return outer.reduce(exp).rParen(s);
-                    }
-
-                    @Override
-                    public Parser lambda(String name) {
-                        return lambdaParser(outer);
-                    }
-                };
-            }
-        };
     }
 
     private Parser lambdaParser(Reduction outer) {
@@ -229,6 +210,25 @@ public class Reader {
                 return termParser(outer);
             }
         };
+    }
+
+    private Parser applicationParser(Reduction outer) {
+        return new Reduction() {
+            @Override
+            public Parser reduce(Expression exp) {
+                return new DelegatingParser(termParser(e -> reduce(consIfNecessary(exp, e)))) {
+                    @Override
+                    public Parser rParen(String s) {
+                        return outer.reduce(exp).rParen(s);
+                    }
+
+                    @Override
+                    public Parser lambda(String name) {
+                        return lambdaParser(outer);
+                    }
+                };
+            }
+        }.reduce(null);
     }
 
     public static void lex(CharSequence input, Parser parser) {
