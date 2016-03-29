@@ -236,7 +236,7 @@ public class ExpReader {
         }
     }
 
-    public Parser numberParser(Reduction outer) {
+    public Parser termParser(Reduction outer) {
         return new Parser0(outer) {
             @Override
             public Parser number(String s) {
@@ -256,14 +256,14 @@ public class ExpReader {
     }
 
     private Parser productParser(Reduction outer) {
-        return numberParser(new Reduction() {
+        return termParser(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser prodOp(String s) {
                         Expression prd1 = constructor.application(constructor.constant(PRD), arg1);
-                        return numberParser(e -> reduce(constructor.application(prd1, e)));
+                        return termParser(e -> reduce(constructor.application(prd1, e)));
                     }
                 };
             }
