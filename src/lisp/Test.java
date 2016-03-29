@@ -59,7 +59,7 @@ public class Test {
     }
 
     public static void main(String[] args) {
-//        test("1", "1");
+        test("1", "1");
 //        test("(1 2)", "");
 //        test("(1 (2 3) ((4 5 6) 7))", "");
         test("(lambda (x) x)", "(lambda (a) a)");
@@ -72,7 +72,7 @@ public class Test {
         test("((lambda (f) (f f f)) (lambda (f x) (f (f x))))", 16); // 2^4
         test("((lambda (f) (f f f f)) (lambda (f x) (f (f x))))", 65536); // 2^16
 //        test("((lambda (f) (f f f f f)) (lambda (f x) (f (f x))))", 0); // 2^65536 - stack overflow
-//        test("((lambda (f) (f f)) (lambda (f) (f f))))", -1); // hangs
+//        test("((lambda (f) (f f)) (lambda (f) (f f))))", -1); // hangs (correctly)
         test("((lambda (f) (f (f f) f)) (lambda (f x) (f (f x))))", 65536); // 2^16
         test("((lambda (f) (f (f f f))) (lambda (f x) (f (f x))))", 256); // 2^8
         test("((lambda (f) (f f (f f))) (lambda (f x) (f (f x))))", 256); // 2^8
