@@ -9,10 +9,10 @@ import lambda.Expression;
  * @author pmilne
  */
 @SuppressWarnings("UnnecessaryInterfaceModifier, WeakerAccess")
-public class ExpReader {
+public class Reader {
     public final Expression.Visitor<Expression> constructor;
 
-    public ExpReader(Expression.Visitor<Expression> constructor) {
+    public Reader(Expression.Visitor<Expression> constructor) {
         this.constructor = constructor;
     }
 

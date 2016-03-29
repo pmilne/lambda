@@ -9,7 +9,7 @@ import lambda.*;
 /**
  * @author pmilne
  */
-public class TestExpReader {
+public class Test {
     public static final Function<Integer, Integer> INC = new Function<Integer, Integer>() {
         @Override
         public Integer apply(Integer x) {
@@ -58,7 +58,7 @@ public class TestExpReader {
 
     private static void test(String input, String... outputs) {
 //        long start = System.currentTimeMillis();
-        new ExpReader(Expressions.CONSTRUCTOR).parse(input, new ExpReader.Processor<Expression>() {
+        new Reader(Expressions.CONSTRUCTOR).parse(input, new Reader.Processor<Expression>() {
             private int index = 0;
 
             @Override

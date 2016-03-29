@@ -1,7 +1,9 @@
-package lambda;
+package lisp;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import lambda.Expression;
 
 /**
  * A side-effect free parser of lambda expressions. The goal is to get this into a canonical form which

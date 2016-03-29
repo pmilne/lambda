@@ -1,6 +1,8 @@
-package lambda;
+package lisp;
 
 import java.util.function.Function;
+
+import lambda.*;
 
 /**
  * @author pmilne
