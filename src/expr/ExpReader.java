@@ -1,6 +1,5 @@
 package expr;
 
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -214,13 +213,13 @@ public class ExpReader {
 
         public Parser getDelegate() {
             if (delegate == null) {
-               delegate = outer.reduce(exp);
+                delegate = outer.reduce(exp);
             }
             return delegate;
         }
     }
 
-    public Parser termParser(Reduction outer) {
+    public Parser atomParser(Reduction outer) {
         return new Parser0(outer) {
             @Override
             public Parser number(String s) {
@@ -231,40 +230,41 @@ public class ExpReader {
             public Parser symbol(String s) {
                 return outer.reduce(constructor.symbol(s));
             }
-
-            @Override
-            public Parser lParen(String s) {
-                return sumParser(e -> new Parser0(outer) {
-                    @Override
-                    public Parser rParen(String s) {
-                        return outer.reduce(e);
-                    }
-                });
-            }
         };
     }
 
     public Parser applicationParser(Reduction outer) {
-        return termParser(new Reduction() {
+        return atomParser(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
-                Reduction inner = e -> reduce(constructor.application(arg1, e));
-                Parser parser = termParser(inner);
-                // Something wrong here; we shouldn't require knowledge of termParser() internals
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser number(String s) {
-                        return parser.number(s);
+                        return reduce(constructor.application(arg1, constructor.constant(Integer.parseInt(s))));
                     }
 
                     @Override
                     public Parser symbol(String s) {
-                        return parser.symbol(s);
+                        return reduce(constructor.application(arg1, constructor.symbol(s)));
                     }
+                };
+            }
+        });
+    }
 
+    public Parser termParser(Reduction outer) {
+        return applicationParser(new Reduction() {
+            @Override
+            public Parser reduce(Expression arg1) {
+                return new Parser1(outer, arg1) {
                     @Override
                     public Parser lParen(String s) {
-                        return parser.lParen(s);
+                        return sumParser(e -> new Parser0(outer) {
+                            @Override
+                            public Parser rParen(String s) {
+                                return outer.reduce(e);
+                            }
+                        });
                     }
                 };
             }
@@ -272,14 +272,14 @@ public class ExpReader {
     }
 
     private Parser productParser(Reduction outer) {
-        return applicationParser(new Reduction() {
+        return termParser(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser prodOp(String s) {
                         Expression prd1 = constructor.application(constructor.symbol(s), arg1);
-                        return applicationParser(e -> reduce(constructor.application(prd1, e)));
+                        return termParser(e -> reduce(constructor.application(prd1, e)));
                     }
                 };
             }
