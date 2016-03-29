@@ -258,7 +258,7 @@ public class ExpReader {
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser lParen(String s) {
-                        return sumParser(e -> new Parser1(outer, null) { // todo remove reference to null
+                        return sumParser(e -> new DelegatingParser(ERROR) {
                             @Override
                             public Parser rParen(String s) {
                                 return outer.reduce(e);
