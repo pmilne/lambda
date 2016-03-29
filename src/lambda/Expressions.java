@@ -9,7 +9,7 @@ public class Expressions {
     public static final Expression.Visitor<Expression> CONSTRUCTOR =
             new Expression.Visitor<Expression>() {
                 @Override
-                public Expression constant(final Object c) {
+                public Expression constant(Object c) {
                     return new Expression() {
                         @Override
                         public <T> T accept(Visitor<T> visitor) {
@@ -19,7 +19,7 @@ public class Expressions {
                 }
 
                 @Override
-                public Expression symbol(final String name) {
+                public Expression symbol(String name) {
                     return new Expression() {
                         @Override
                         public <T> T accept(Visitor<T> visitor) {
@@ -29,7 +29,7 @@ public class Expressions {
                 }
 
                 @Override
-                public Expression application(final Expression fun, final Expression arg) {
+                public Expression application(Expression fun, Expression arg) {
                     return new Expression() {
                         @Override
                         public <T> T accept(Visitor<T> visitor) {
@@ -39,7 +39,7 @@ public class Expressions {
                 }
 
                 @Override
-                public Expression lambda(final Expression var, final Expression exp) {
+                public Expression lambda(Expression var, Expression exp) {
                     return new Expression() {
                         @Override
                         public <T> T accept(Visitor<T> visitor) {
@@ -51,22 +51,22 @@ public class Expressions {
 
     public static final Expression.Visitor<String> TO_STRING = new Expression.Visitor<String>() {
         @Override
-        public String constant(final Object c) {
+        public String constant(Object c) {
             return c.toString();
         }
 
         @Override
-        public String symbol(final String name) {
+        public String symbol(String name) {
             return name;
         }
 
         @Override
-        public String application(final Expression fun, final Expression arg) {
+        public String application(Expression fun, Expression arg) {
             return "(" + fun.accept(this) + " " + arg.accept(this) + ")";
         }
 
         @Override
-        public String lambda(final Expression var, final Expression exp) {
+        public String lambda(Expression var, Expression exp) {
             return "(lambda (" + var.accept(this) + ") " + exp.accept(this) + ")";
         }
     };

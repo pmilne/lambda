@@ -46,7 +46,7 @@ public class Evaluator {
     public static interface Marker extends Function<Object, Object> {}
 
     // This visitor turns symbols into numbers at 'compile' time and provides a mechanism for evaluation.
-    private static Expression.Visitor<Implementation> createCompiler(final Stack<String> nameStack) {
+    private static Expression.Visitor<Implementation> createCompiler(Stack<String> nameStack) {
         return new Expression.Visitor<Implementation>() {
                     @Override
                     public Implementation constant(Object value) {
@@ -56,21 +56,21 @@ public class Evaluator {
                     @Override
                     public Implementation symbol(String name) {
                         int index = nameStack.indexOf(name);
-                        return (Stack<Object> env) -> env.get(index);
+                        return env -> env.get(index);
                     }
 
                     @Override
                     public Implementation application(Expression fun, Expression arg) {
                         Implementation fun0 = fun.accept(this);
                         Implementation arg0 = arg.accept(this);
-                        return (Stack<Object> env) -> ((Function) fun0.eval(env)).apply(arg0.eval(env));
+                        return env -> ((Function) fun0.eval(env)).apply(arg0.eval(env));
                     }
 
                     @Override
                     public Implementation lambda(Expression var, Expression exp) {
                         String varName = var.accept(Expressions.TO_STRING);
                         Implementation exp0 = exp.accept(createCompiler(Stack.create(nameStack, varName)));
-                        return (Stack<Object> env) -> (Marker) (Object arg) -> exp0.eval(Stack.create(env, arg));
+                        return env -> (Marker) arg -> exp0.eval(Stack.create(env, arg));
                     }
                 };
     }
