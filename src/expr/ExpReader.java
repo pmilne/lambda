@@ -233,7 +233,7 @@ public class ExpReader {
         };
     }
 
-    public Parser applicationParser(Reduction outer) {
+    public Parser implicitFunctionApplicationParser(Reduction outer) {
         return atomParser(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
@@ -254,7 +254,7 @@ public class ExpReader {
 
     @SuppressWarnings("Convert2Lambda")
     public Parser termParser(Reduction outer) {
-        return applicationParser(new Reduction() {
+        return implicitFunctionApplicationParser(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
                 return new Parser1(outer, arg1) {
