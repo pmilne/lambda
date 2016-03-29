@@ -219,6 +219,10 @@ public class ExpReader {
         }
     }
 
+    public static interface ParserConstructor {
+        public Parser create(Reduction r);
+    }
+
     public Parser atomParser(Reduction outer) {
         return new Parser0(outer) {
             @Override
@@ -301,7 +305,7 @@ public class ExpReader {
             }
         });
     }
-
+    
     public static void lex(CharSequence input, Parser parser) {
         Matcher matcher = Pattern.compile(getRegex()).matcher(input);
         while (matcher.find()) {
