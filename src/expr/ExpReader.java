@@ -252,6 +252,7 @@ public class ExpReader {
         });
     }
 
+    @SuppressWarnings("Convert2Lambda")
     public Parser termParser(Reduction outer) {
         return applicationParser(new Reduction() {
             @Override
