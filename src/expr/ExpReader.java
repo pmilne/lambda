@@ -238,7 +238,7 @@ public class ExpReader {
 
         public Parser getDelegate() {
             if (delegate == null) {
-                delegate = outer.reduce(exp);
+               delegate = outer.reduce(exp);
             }
             return delegate;
         }
