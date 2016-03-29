@@ -224,6 +224,25 @@ public class ExpReader {
         }
     }
 
+    private static interface ParserFactory1 {
+        Parser create(Reduction success);
+    }
+
+    private static interface ParserFactory2 {
+        Parser create(Parser fail, Reduction success);
+    }
+
+    public Parser operatorParser(Reduction outer, ParserFactory1 domainParser, ParserFactory2 opParser) {
+        return domainParser.create(new Reduction() {
+            @Override
+            public Parser reduce(Expression arg1) { // note this is called recursively from the closure
+                return opParser.create(outer.reduce(arg1),
+                        op -> domainParser.create(
+                                arg2 -> reduce(constructor.application(constructor.application(op, arg1), arg2))));
+            }
+        });
+    }
+
     public Parser atomParser(Parser fail, Reduction success) {
         return new DelegatingParser(fail) {
             @Override
@@ -267,25 +286,6 @@ public class ExpReader {
                         });
                     }
                 };
-            }
-        });
-    }
-
-    private static interface ParserFactory1 {
-        Parser create(Reduction success);
-    }
-
-    private static interface ParserFactory2 {
-        Parser create(Parser fail, Reduction success);
-    }
-
-    public Parser operatorParser(Reduction outer, ParserFactory1 domainParser, ParserFactory2 opParser) {
-        return domainParser.create(new Reduction() {
-            @Override
-            public Parser reduce(Expression arg1) { // note this is called recursively from the closure
-                return opParser.create(outer.reduce(arg1),
-                        op -> domainParser.create(
-                                arg2 -> reduce(constructor.application(constructor.application(op, arg1), arg2))));
             }
         });
     }
