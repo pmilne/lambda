@@ -190,22 +190,6 @@ public class ExpReader {
         }
     }
 
-    private static class Parser0 extends ParserBase {
-        public final Reduction outer;
-        private Parser delegate;
-
-        public Parser0(Reduction outer) {
-            this.outer = outer;
-        }
-
-        public Parser getDelegate() {
-            if (delegate == null) {
-                delegate = outer.reduce(null);
-            }
-            return delegate;
-        }
-    }
-
     private static class Parser1 extends ParserBase {
         public final Reduction outer;
         public final Expression exp;
@@ -258,7 +242,7 @@ public class ExpReader {
     }
 
     public Parser implicitFunctionApplicationParser(Reduction outer) {
-        return atomParser(outer.reduce(null), new Reduction() { // todo remove reference to null in here
+        return atomParser(outer.reduce(null), new Reduction() { // todo remove reference to null
             @Override
             public Parser reduce(Expression arg1) {
                 return atomParser(outer.reduce(arg1), e -> reduce(constructor.application(arg1, e)));
@@ -274,7 +258,7 @@ public class ExpReader {
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser lParen(String s) {
-                        return sumParser(e -> new Parser0(outer) {
+                        return sumParser(e -> new Parser1(outer, null) { // todo remove reference to null
                             @Override
                             public Parser rParen(String s) {
                                 return outer.reduce(e);
