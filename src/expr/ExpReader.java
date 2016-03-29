@@ -209,7 +209,7 @@ public class ExpReader {
     private static class Parser1 extends ParserBase {
         public final Reduction outer;
         public final Expression exp;
-        public Parser delegate;
+        private Parser delegate;
 
         public Parser1(Reduction outer, Expression exp) {
             this.exp = exp;
