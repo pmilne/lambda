@@ -172,6 +172,11 @@ public class ExpReader {
         public Parser getDelegate() {
             return delegate;
         }
+
+        @Override
+        public Parser whiteSpace(String s) {
+            return this;
+        }
     }
 
     private static interface Reduction {
@@ -266,17 +271,20 @@ public class ExpReader {
         });
     }
 
+    private Parser parseProdOp(Parser fail, Reduction success) {
+        return new DelegatingParser(fail) {
+            @Override
+            public Parser prodOp(String s) {
+                return success.reduce(constructor.symbol(s));
+            }
+        };
+    }
+
     private Parser productParser(Reduction outer) {
         return termParser(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
-                return new Parser1(outer, arg1) {
-                    @Override
-                    public Parser prodOp(String s) {
-                        Expression prd1 = constructor.application(constructor.symbol(s), arg1);
-                        return termParser(e -> reduce(constructor.application(prd1, e)));
-                    }
-                };
+                return parseProdOp(outer.reduce(arg1), op -> termParser(arg2 -> reduce(constructor.application(constructor.application(op, arg1), arg2))));
             }
         });
     }
