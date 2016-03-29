@@ -224,16 +224,16 @@ public class ExpReader {
         }
     }
 
-    public Parser atomParser(Parser delegate, Reduction accept) {
-        return new DelegatingParser(delegate) {
+    public Parser atomParser(Parser fail, Reduction success) {
+        return new DelegatingParser(fail) {
             @Override
             public Parser number(String s) {
-                return accept.reduce(constructor.constant(Integer.parseInt(s)));
+                return success.reduce(constructor.constant(Integer.parseInt(s)));
             }
 
             @Override
             public Parser symbol(String s) {
-                return accept.reduce(constructor.symbol(s));
+                return success.reduce(constructor.symbol(s));
             }
         };
     }
