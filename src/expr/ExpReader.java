@@ -283,7 +283,9 @@ public class ExpReader {
         return domainParser.create(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) { // note this is called recursively from the closure
-                return opParser.create(outer.reduce(arg1), op -> domainParser.create(arg2 -> reduce(constructor.application(constructor.application(op, arg1), arg2))));
+                return opParser.create(outer.reduce(arg1),
+                        op -> domainParser.create(
+                                arg2 -> reduce(constructor.application(constructor.application(op, arg1), arg2))));
             }
         });
     }
