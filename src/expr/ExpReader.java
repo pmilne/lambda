@@ -212,19 +212,24 @@ public class ExpReader {
 
     public static class Parser0 extends ParserBase {
         public final Reduction outer;
+        public Parser delegate;
 
         public Parser0(Reduction outer) {
             this.outer = outer;
         }
 
         public Parser getDelegate() {
-            return outer.reduce(null);
+            if (delegate == null) {
+                delegate = outer.reduce(null);
+            }
+            return delegate;
         }
     }
 
     public static class Parser1 extends ParserBase {
         public final Reduction outer;
         public final Expression exp;
+        public Parser delegate;
 
         public Parser1(Reduction outer, Expression exp) {
             this.exp = exp;
@@ -232,7 +237,10 @@ public class ExpReader {
         }
 
         public Parser getDelegate() {
-            return outer.reduce(exp);
+            if (delegate == null) {
+                delegate = outer.reduce(exp);
+            }
+            return delegate;
         }
     }
 

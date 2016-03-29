@@ -12,7 +12,7 @@ public class TestExpReader {
 
             @Override
             public void process(Expression exp) {
-                System.out.println("Input: " + exp);
+                System.out.println("Input: " + (input.length() > 1000 ? "<too long>" : exp));
                 Object value = Evaluator.eval(exp);
                 Expression out = Decompiler.toExpression(value);
                 String outString = out.toString();
@@ -30,5 +30,13 @@ public class TestExpReader {
         test("1 * 2 + 3 ;", "5");
         test("1 * 2 + 3 * 4 + 5 ;", "19");
         test("1 * 2 + 3 * (4 + 5) ;", "29");
+        StringBuilder builder = new StringBuilder();
+        builder.append(0);
+        for(int i = 1; i < 1000; i++) {
+            builder.append("+").append(i);
+        }
+        long start = System.currentTimeMillis();
+        test(builder.toString() + ";", "499500");
+        System.out.println("Time: " + (System.currentTimeMillis() - start)/1000.0 + "s");
     }
 }
