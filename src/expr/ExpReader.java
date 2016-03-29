@@ -213,7 +213,7 @@ public class ExpReader {
     }
 
     private static interface ParserFactory2 {
-        Parser create(Parser fail, Reduction success);
+        Parser create(Parser failure, Reduction success);
     }
 
     public Parser operatorParser(Reduction outer, ParserFactory1 domainParser, ParserFactory2 opParser) {
@@ -227,8 +227,8 @@ public class ExpReader {
         });
     }
 
-    public Parser atomParser(Parser fail, Reduction success) {
-        return new DelegatingParser(fail) {
+    public Parser atomParser(Parser failure, Reduction success) {
+        return new DelegatingParser(failure) {
             @Override
             public Parser number(String s) {
                 return success.reduce(constructor.constant(Integer.parseInt(s)));
@@ -271,7 +271,7 @@ public class ExpReader {
     }
 
     public Parser productParser(Reduction outer) {
-        return operatorParser(outer, this::termParser, (fail, success) -> new DelegatingParser(fail) {
+        return operatorParser(outer, this::termParser, (failure, success) -> new DelegatingParser(failure) {
             @Override
             public Parser prodOp(String s) {
                 return success.reduce(constructor.symbol(s));
@@ -280,7 +280,7 @@ public class ExpReader {
     }
 
     public Parser sumParser(Reduction outer) {
-        return operatorParser(outer, this::productParser, (fail, success) -> new DelegatingParser(fail) {
+        return operatorParser(outer, this::productParser, (failure, success) -> new DelegatingParser(failure) {
             @Override
             public Parser sumOp(String s) {
                 return success.reduce(constructor.symbol(s));
