@@ -310,10 +310,10 @@ public class ExpReader {
 
             @Override
             public Parser reduce(Expression e) {
-                processor.process(e);
                 return new DelegatingParser(ERROR) {
                     @Override
                     public Parser semicolon(String s) {
+                        processor.process(e);
                         return sumParser(that);
                     }
                 };
