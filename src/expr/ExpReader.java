@@ -244,13 +244,13 @@ public class ExpReader {
         };
     }
 
-    // Something wrong here
     public Parser applicationParser(Reduction outer) {
         return termParser(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
                 Reduction inner = e -> reduce(constructor.application(arg1, e));
                 Parser parser = termParser(inner);
+                // Something wrong here; we shouldn't require knowledge of termParser() internals
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser number(String s) {
