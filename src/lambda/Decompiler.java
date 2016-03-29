@@ -7,6 +7,7 @@ import java.util.function.Function;
  *
  * @author pmilne
  */
+@SuppressWarnings("UnnecessaryInterfaceModifier, WeakerAccess")
 public class Decompiler {
     private static String varName(int i) {
         return new String(new byte[]{(byte) ('a' + i)});

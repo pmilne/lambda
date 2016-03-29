@@ -5,7 +5,7 @@ import java.util.function.Function;
 /**
  * @author pmilne
  */
-@SuppressWarnings("UnnecessaryInterfaceModifier")
+@SuppressWarnings("UnnecessaryInterfaceModifier, WeakerAccess")
 public class Evaluator {
     // A misnomer, this Stack is immutable -- and lives in the heap.
     public static class Stack<T> {
