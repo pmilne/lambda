@@ -50,7 +50,7 @@ public class Evaluator {
         return new Expression.Visitor<Implementation>() {
                     @Override
                     public Implementation constant(Object value) {
-                        return (Stack<Object> env) -> value;
+                        return env -> value;
                     }
 
                     @Override
