@@ -279,24 +279,6 @@ public class ExpReader {
         Parser create(Parser fail, Reduction success);
     }
 
-    private Parser parseProdOp(Parser fail, Reduction success) {
-        return new DelegatingParser(fail) {
-            @Override
-            public Parser prodOp(String s) {
-                return success.reduce(constructor.symbol(s));
-            }
-        };
-    }
-
-    private Parser parseSumOp(Parser fail, Reduction success) {
-        return new DelegatingParser(fail) {
-            @Override
-            public Parser sumOp(String s) {
-                return success.reduce(constructor.symbol(s));
-            }
-        };
-    }
-
     private Parser leftRecursiveParser(Reduction outer, ParserFactory1 termParser1, ParserFactory2 opParser) {
         return termParser1.create(new Reduction() {
             @Override
@@ -306,8 +288,26 @@ public class ExpReader {
         });
     }
 
+    private Parser parseProdOp(Parser fail, Reduction success) {
+        return new DelegatingParser(fail) {
+            @Override
+            public Parser prodOp(String s) {
+                return success.reduce(constructor.symbol(s));
+            }
+        };
+    }
+
     private Parser productParser(Reduction outer) {
         return leftRecursiveParser(outer, this::termParser, this::parseProdOp);
+    }
+
+    private Parser parseSumOp(Parser fail, Reduction success) {
+        return new DelegatingParser(fail) {
+            @Override
+            public Parser sumOp(String s) {
+                return success.reduce(constructor.symbol(s));
+            }
+        };
     }
 
     private Parser sumParser(Reduction outer) {
