@@ -257,12 +257,8 @@ public class ExpReader {
         };
     }
 
-    public Parser atomParser(Reduction outer) {
-        return atomParser(outer.reduce(null), outer); // todo remove this reference to null
-    }
-
     public Parser implicitFunctionApplicationParser(Reduction outer) {
-        return atomParser(new Reduction() {
+        return atomParser(outer.reduce(null), new Reduction() { // todo remove reference to null in here
             @Override
             public Parser reduce(Expression arg1) {
                 return atomParser(outer.reduce(arg1), e -> reduce(constructor.application(arg1, e)));
