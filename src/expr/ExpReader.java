@@ -8,7 +8,7 @@ import lambda.Expression;
 /**
  * @author pmilne
  */
-@SuppressWarnings("UnnecessaryInterfaceModifier")
+@SuppressWarnings("UnnecessaryInterfaceModifier, WeakerAccess")
 public class ExpReader {
     public final Expression.Visitor<Expression> constructor;
 
@@ -45,7 +45,7 @@ public class ExpReader {
         return buffer.substring(1);
     }
 
-    public interface VisitorMethod {
+    private interface VisitorMethod {
         public Parser call(Parser t, String s);
     }
 
@@ -71,7 +71,7 @@ public class ExpReader {
     public static abstract class Parser extends TokenVisitor<Parser> {
     }
 
-    public static Parser ERROR = new Parser() {
+    private static Parser ERROR = new Parser() {
         private Parser error(String s) {
             throw new RuntimeException("Syntax error: " + s);
         }
@@ -117,7 +117,7 @@ public class ExpReader {
         }
     };
 
-    public static abstract class DelegatingParser0 extends Parser {
+    private static abstract class DelegatingParser0 extends Parser {
         public abstract Parser getDelegate();
 
         @Override
@@ -161,7 +161,7 @@ public class ExpReader {
         }
     }
 
-    public static class DelegatingParser extends DelegatingParser0 {
+    private static class DelegatingParser extends DelegatingParser0 {
         public final Parser delegate;
 
         public DelegatingParser(Parser delegate) {
@@ -183,14 +183,14 @@ public class ExpReader {
         public Parser reduce(Expression e);
     }
 
-    public static abstract class ParserBase extends DelegatingParser0 {
+    private static abstract class ParserBase extends DelegatingParser0 {
         @Override
         public Parser whiteSpace(String s) {
             return this;
         }
     }
 
-    public static class Parser0 extends ParserBase {
+    private static class Parser0 extends ParserBase {
         public final Reduction outer;
         public Parser delegate;
 
@@ -206,7 +206,7 @@ public class ExpReader {
         }
     }
 
-    public static class Parser1 extends ParserBase {
+    private static class Parser1 extends ParserBase {
         public final Reduction outer;
         public final Expression exp;
         public Parser delegate;
@@ -271,47 +271,39 @@ public class ExpReader {
         });
     }
 
-    public static interface ParserFactory1 {
+    private static interface ParserFactory1 {
         Parser create(Reduction success);
     }
 
-    public static interface ParserFactory2 {
+    private static interface ParserFactory2 {
         Parser create(Parser fail, Reduction success);
     }
 
-    private Parser leftRecursiveParser(Reduction outer, ParserFactory1 termParser1, ParserFactory2 opParser) {
-        return termParser1.create(new Reduction() {
+    public Parser operatorParser(Reduction outer, ParserFactory1 domainParser, ParserFactory2 opParser) {
+        return domainParser.create(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
-                return opParser.create(outer.reduce(arg1), op -> termParser1.create(arg2 -> reduce(constructor.application(constructor.application(op, arg1), arg2))));
+                return opParser.create(outer.reduce(arg1), op -> domainParser.create(arg2 -> reduce(constructor.application(constructor.application(op, arg1), arg2))));
             }
         });
     }
 
-    private Parser parseProdOp(Parser fail, Reduction success) {
-        return new DelegatingParser(fail) {
+    public Parser productParser(Reduction outer) {
+        return operatorParser(outer, this::termParser, (fail, success) -> new DelegatingParser(fail) {
             @Override
             public Parser prodOp(String s) {
                 return success.reduce(constructor.symbol(s));
             }
-        };
+        });
     }
 
-    private Parser productParser(Reduction outer) {
-        return leftRecursiveParser(outer, this::termParser, this::parseProdOp);
-    }
-
-    private Parser parseSumOp(Parser fail, Reduction success) {
-        return new DelegatingParser(fail) {
+    public Parser sumParser(Reduction outer) {
+        return operatorParser(outer, this::productParser, (fail, success) -> new DelegatingParser(fail) {
             @Override
             public Parser sumOp(String s) {
                 return success.reduce(constructor.symbol(s));
             }
-        };
-    }
-
-    private Parser sumParser(Reduction outer) {
-        return leftRecursiveParser(outer, this::productParser, this::parseSumOp);
+        });
     }
 
     public static void lex(CharSequence input, Parser parser) {
