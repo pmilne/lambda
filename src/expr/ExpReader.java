@@ -258,7 +258,7 @@ public class ExpReader {
     }
 
     public Parser atomParser(Reduction outer) {
-        return atomParser(outer.reduce(null), outer);
+        return atomParser(outer.reduce(null), outer); // todo remove this reference to null
     }
 
     public Parser implicitFunctionApplicationParser(Reduction outer) {
