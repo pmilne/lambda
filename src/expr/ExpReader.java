@@ -11,30 +11,6 @@ import lambda.Expression;
  */
 @SuppressWarnings("UnnecessaryInterfaceModifier")
 public class ExpReader {
-    public static final Function<Integer, Function<Integer, Integer>> SUM = new Function<Integer, Function<Integer, Integer>>() {
-        @Override
-        public Function<Integer, Integer> apply(Integer x) {
-            return y -> x + y;
-        }
-
-        @Override
-        public String toString() {
-            return "+";
-        }
-    };
-
-    public static final Function<Integer, Function<Integer, Integer>> PRD = new Function<Integer, Function<Integer, Integer>>() {
-        @Override
-        public Function<Integer, Integer> apply(Integer x) {
-            return y -> x * y;
-        }
-
-        @Override
-        public String toString() {
-            return "*";
-        }
-    };
-
     public final Expression.Visitor<Expression> constructor;
 
     public ExpReader(Expression.Visitor<Expression> constructor) {
@@ -252,6 +228,11 @@ public class ExpReader {
             }
 
             @Override
+            public Parser symbol(String s) {
+                return outer.reduce(constructor.symbol(s));
+            }
+
+            @Override
             public Parser lParen(String s) {
                 return sumParser(e -> new Parser0(outer) {
                     @Override
@@ -263,15 +244,42 @@ public class ExpReader {
         };
     }
 
-    private Parser productParser(Reduction outer) {
+    // Something wrong here
+    public Parser applicationParser(Reduction outer) {
         return termParser(new Reduction() {
+            @Override
+            public Parser reduce(Expression arg1) {
+                Reduction inner = e -> reduce(constructor.application(arg1, e));
+                Parser parser = termParser(inner);
+                return new Parser1(outer, arg1) {
+                    @Override
+                    public Parser number(String s) {
+                        return parser.number(s);
+                    }
+
+                    @Override
+                    public Parser symbol(String s) {
+                        return parser.symbol(s);
+                    }
+
+                    @Override
+                    public Parser lParen(String s) {
+                        return parser.lParen(s);
+                    }
+                };
+            }
+        });
+    }
+
+    private Parser productParser(Reduction outer) {
+        return applicationParser(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser prodOp(String s) {
-                        Expression prd1 = constructor.application(constructor.constant(PRD), arg1);
-                        return termParser(e -> reduce(constructor.application(prd1, e)));
+                        Expression prd1 = constructor.application(constructor.symbol(s), arg1);
+                        return applicationParser(e -> reduce(constructor.application(prd1, e)));
                     }
                 };
             }
@@ -285,7 +293,7 @@ public class ExpReader {
                 return new Parser1(outer, arg1) {
                     @Override
                     public Parser sumOp(String s) {
-                        Expression sum1 = constructor.application(constructor.constant(SUM), arg1);
+                        Expression sum1 = constructor.application(constructor.symbol(s), arg1);
                         return productParser(e -> reduce(constructor.application(sum1, e)));
                     }
                 };

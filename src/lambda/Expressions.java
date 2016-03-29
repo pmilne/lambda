@@ -1,5 +1,7 @@
 package lambda;
 
+import java.util.Map;
+
 /**
  * @author pmilne
  */
@@ -68,4 +70,31 @@ public class Expressions {
             return "(lambda (" + var.accept(this) + ") " + exp.accept(this) + ")";
         }
     };
+
+
+    public static Expression substitute(Expression input, Map<String, Object> env) {
+        Expression.Visitor<Expression> c = Expressions.CONSTRUCTOR;
+        return input.accept(new Expression.Visitor<Expression>() {
+            @Override
+            public Expression constant(Object value) {
+                return c.constant(value);
+            }
+
+            @Override
+            public Expression symbol(String name) {
+                return env.containsKey(name) ? c.constant(env.get(name)) : c.symbol(name);
+            }
+
+            @Override
+            public Expression lambda(Expression var, Expression exp) {
+                return env.containsKey(var.toString()) ?
+                        c.lambda(var, exp) : c.lambda(var.accept(this), exp.accept(this));
+            }
+
+            @Override
+            public Expression application(Expression fun, Expression arg) {
+                return c.application(fun.accept(this), arg.accept(this));
+            }
+        });
+    }
 }
