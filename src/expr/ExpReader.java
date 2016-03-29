@@ -192,7 +192,7 @@ public class ExpReader {
 
     private static class Parser0 extends ParserBase {
         public final Reduction outer;
-        public Parser delegate;
+        private Parser delegate;
 
         public Parser0(Reduction outer) {
             this.outer = outer;
