@@ -14,7 +14,7 @@ public class TestExpReader {
             @Override
             public void process(Expression exp) {
                 System.out.println("Input: " + (input.length() > 1000 ? "<too long>" : exp));
-//                System.out.println("Time: " + (System.currentTimeMillis() - start)/1000.0 + "s");
+//                System.out.println("Parse time: " + (System.currentTimeMillis() - start)/1000.0 + "s");
                 Object value = Evaluator.eval(exp);
                 Expression out = Decompiler.toExpression(value);
                 String outString = out.toString();
