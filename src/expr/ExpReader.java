@@ -219,35 +219,29 @@ public class ExpReader {
         }
     }
 
-    public Parser atomParser(Reduction outer) {
-        return new Parser0(outer) {
+    public Parser atomParser(Reduction outer, Reduction accept, Expression exp) {
+        return new Parser1(outer, exp) {
             @Override
             public Parser number(String s) {
-                return outer.reduce(constructor.constant(Integer.parseInt(s)));
+                return accept.reduce(constructor.constant(Integer.parseInt(s)));
             }
 
             @Override
             public Parser symbol(String s) {
-                return outer.reduce(constructor.symbol(s));
+                return accept.reduce(constructor.symbol(s));
             }
         };
+    }
+
+    public Parser atomParser(Reduction outer) {
+        return atomParser(outer, outer, null);
     }
 
     public Parser implicitFunctionApplicationParser(Reduction outer) {
         return atomParser(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
-                return new Parser1(outer, arg1) {
-                    @Override
-                    public Parser number(String s) {
-                        return reduce(constructor.application(arg1, constructor.constant(Integer.parseInt(s))));
-                    }
-
-                    @Override
-                    public Parser symbol(String s) {
-                        return reduce(constructor.application(arg1, constructor.symbol(s)));
-                    }
-                };
+                  return atomParser(outer, e -> reduce(constructor.application(arg1, e)), arg1);
             }
         });
     }
