@@ -271,6 +271,14 @@ public class ExpReader {
         });
     }
 
+    public static interface ParserFactory1 {
+        Parser create(Reduction success);
+    }
+
+    public static interface ParserFactory2 {
+        Parser create(Parser fail, Reduction success);
+    }
+
     private Parser parseProdOp(Parser fail, Reduction success) {
         return new DelegatingParser(fail) {
             @Override
@@ -280,28 +288,30 @@ public class ExpReader {
         };
     }
 
-    private Parser productParser(Reduction outer) {
-        return termParser(new Reduction() {
+    private Parser parseSumOp(Parser fail, Reduction success) {
+        return new DelegatingParser(fail) {
+            @Override
+            public Parser sumOp(String s) {
+                return success.reduce(constructor.symbol(s));
+            }
+        };
+    }
+
+    private Parser leftRecursiveParser(Reduction outer, ParserFactory1 termParser1, ParserFactory2 opParser) {
+        return termParser1.create(new Reduction() {
             @Override
             public Parser reduce(Expression arg1) {
-                return parseProdOp(outer.reduce(arg1), op -> termParser(arg2 -> reduce(constructor.application(constructor.application(op, arg1), arg2))));
+                return opParser.create(outer.reduce(arg1), op -> termParser1.create(arg2 -> reduce(constructor.application(constructor.application(op, arg1), arg2))));
             }
         });
     }
 
-    public Parser sumParser(Reduction outer) {
-        return productParser(new Reduction() {
-            @Override
-            public Parser reduce(Expression arg1) { // todo eliminate recursive call from below (?)
-                return new Parser1(outer, arg1) {
-                    @Override
-                    public Parser sumOp(String s) {
-                        Expression sum1 = constructor.application(constructor.symbol(s), arg1);
-                        return productParser(e -> reduce(constructor.application(sum1, e)));
-                    }
-                };
-            }
-        });
+    private Parser productParser(Reduction outer) {
+        return leftRecursiveParser(outer, this::termParser, this::parseProdOp);
+    }
+
+    private Parser sumParser(Reduction outer) {
+        return leftRecursiveParser(outer, this::productParser, this::parseSumOp);
     }
 
     public static void lex(CharSequence input, Parser parser) {
