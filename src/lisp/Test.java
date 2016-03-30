@@ -136,7 +136,7 @@ public class Test {
         test("(lambda (x) c)", RuntimeException.class);
         test("1 2", "1", "2");
         if (TEST_PERFORMANCE) {
-            System.out.println("Starting evaluator performance test (typical run time is ~70s)... ");
+            System.out.println("Starting evaluator performance test (typical run time is ~115s)... ");
             long start = System.currentTimeMillis();
             test("((lambda (f) (f f f (f f))) two inc 0)", 0); // 2^32 about 1 min
             System.out.println("Time: " + (System.currentTimeMillis() - start)/1000.0 + "s");
