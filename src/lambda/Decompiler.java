@@ -11,18 +11,21 @@ public class Decompiler {
         return new String(new byte[]{(byte) ('a' + i)});
     }
 
-    private static class Mole implements Function {
-        public final Expression exp;
-        public final Converter converter;
+    private static interface Mole extends Function {
+        Expression getExp();
+    }
 
-        public Mole(Expression exp, Converter converter) {
-            this.exp = exp;
-            this.converter = converter;
-        }
+    public static Mole createMole(Expression exp, Converter converter) {
+        return new Mole() {
+            @Override
+            public Expression getExp() {
+                return exp;
+            }
 
-        public Primitive apply(Primitive a) {
-            return primitive(new Mole(Expressions.CONSTRUCTOR.application(exp, converter.convert(a)), converter));
-        }
+            public Primitive apply(Primitive a) {
+                return primitive(createMole(Expressions.CONSTRUCTOR.application(exp, converter.convert(a)), converter));
+            }
+        };
     }
 
     public static abstract class Converter {
@@ -46,11 +49,11 @@ public class Decompiler {
                         @Override
                         public Expression function(Function f) {
                             if (f instanceof Mole) {
-                                return ((Mole) f).exp;
+                                return ((Mole) f).getExp();
                             }
                             Expression var = c.symbol(varName(level));
                             Converter converter = create(level + 1);
-                            Primitive apply = f.apply(primitive(new Mole(var, converter)));
+                            Primitive apply = f.apply(primitive(createMole(var, converter)));
                             return c.lambda(var, converter.convert(apply));
                         }
                     });
