@@ -1,6 +1,6 @@
 package lambda;
 
-import static lambda.Primitives.toPrimitive;
+import static lambda.Primitives.primitive;
 
 /**
  * @author pmilne
@@ -21,7 +21,7 @@ public class Decompiler {
         }
 
         public Primitive apply(Primitive a) {
-            return toPrimitive(new Mole(Expressions.CONSTRUCTOR.application(exp, converter.convert(a)), converter));
+            return primitive(new Mole(Expressions.CONSTRUCTOR.application(exp, converter.convert(a)), converter));
         }
     }
 
@@ -50,7 +50,7 @@ public class Decompiler {
                             }
                             Expression var = c.symbol(varName(level));
                             Converter converter = create(level + 1);
-                            Primitive apply = f.apply(toPrimitive(new Mole(var, converter)));
+                            Primitive apply = f.apply(primitive(new Mole(var, converter)));
                             return c.lambda(var, converter.convert(apply));
                         }
                     });

@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import lambda.Expression;
 
-import static lambda.Primitives.toPrimitive;
+import static lambda.Primitives.primitive;
 
 /**
  * @author pmilne
@@ -233,7 +233,7 @@ public class Reader {
         return new DelegatingParser(failure) {
             @Override
             public Parser number(String s) {
-                return success.reduce(constructor.constant(toPrimitive(Integer.parseInt(s))));
+                return success.reduce(constructor.constant(primitive(Integer.parseInt(s))));
             }
 
             @Override

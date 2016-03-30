@@ -59,8 +59,17 @@ public class Primitives {
 
     public static final Primitive.Visitor<Function> TO_FUNCTION = new Primitive.Visitor<Function>() {
         @Override
-        public Function integer(int i) {
-            throw new NotImplementedException();
+        public Function integer(int n) {
+            return arg1 -> {
+                Function f = toFunction(arg1);
+                return primitive(x -> {
+                    Primitive result = x;
+                    for (int i = 0; i < n; i++) {
+                        result = f.apply(result);
+                    }
+                    return result;
+                });
+            };
         }
 
         @Override
@@ -91,20 +100,24 @@ public class Primitives {
         }
     };
 
+    // constructors
+
+    public static Primitive primitive(int i) {
+        return CONSTRUCTOR.integer(i);
+    }
+
+    public static Primitive primitive(Function m) {
+        return CONSTRUCTOR.function(m);
+    }
+
+    // accessors
+
     public static int toInt(Primitive p) {
         return p.accept(TO_INT);
     }
 
     public static Function toFunction(Primitive p) {
         return p.accept(TO_FUNCTION);
-    }
-
-    public static Primitive toPrimitive(int i) {
-        return CONSTRUCTOR.integer(i);
-    }
-
-    public static Primitive toPrimitive(Function m) {
-        return CONSTRUCTOR.function(m);
     }
 
 }

@@ -6,16 +6,16 @@ import java.util.Map;
 import lambda.*;
 
 import static lambda.Primitives.toInt;
-import static lambda.Primitives.toPrimitive;
+import static lambda.Primitives.primitive;
 
 /**
  * @author pmilne
  */
 public class Test {
-    private static final Primitive INC = toPrimitive(new Function() {
+    private static final Primitive INC = primitive(new Function() {
         @Override
         public Primitive apply(Primitive x) {
-            return toPrimitive(toInt(x) + 1);
+            return primitive(toInt(x) + 1);
         }
 
         @Override
@@ -24,10 +24,10 @@ public class Test {
         }
     });
 
-    private static final Primitive SUM = toPrimitive(new Function() {
+    private static final Primitive SUM = primitive(new Function() {
         @Override
         public Primitive apply(Primitive x) {
-            return toPrimitive(y -> toPrimitive(toInt(x) + toInt(y)));
+            return primitive(y -> primitive(toInt(x) + toInt(y)));
         }
 
         @Override
@@ -36,10 +36,10 @@ public class Test {
         }
     });
 
-    private static final Primitive PRD = toPrimitive(new Function() {
+    private static final Primitive PRD = primitive(new Function() {
         @Override
         public Primitive apply(Primitive x) {
-            return toPrimitive(y -> toPrimitive(toInt(x) * toInt(y)));
+            return primitive(y -> primitive(toInt(x) * toInt(y)));
         }
 
         @Override

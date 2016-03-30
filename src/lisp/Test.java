@@ -3,17 +3,17 @@ package lisp;
 import lambda.*;
 
 import static lambda.Primitives.toInt;
-import static lambda.Primitives.toPrimitive;
+import static lambda.Primitives.primitive;
 
 /**
  * @author pmilne
  */
 public class Test {
-    private static final Primitive ZERO = toPrimitive(0);
-    private static final Primitive INC = toPrimitive(new Function() {
+    private static final Primitive ZERO = primitive(0);
+    private static final Primitive INC = primitive(new Function() {
         @Override
         public Primitive apply(Primitive x) {
-            return toPrimitive(toInt(x) + 1);
+            return primitive(toInt(x) + 1);
         }
 
         @Override
