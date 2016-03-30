@@ -47,7 +47,7 @@ public class Test {
     });
 
 
-    private static final boolean TEST_PERFORMANCE = true;
+    private static final boolean TEST_PERFORMANCE = false;
 
     private static Map<String, Primitive> getGlobals() {
         Map<String, Primitive> globals = new HashMap<>();
