@@ -56,8 +56,8 @@ public class Primitives {
         }
 
         @Override
-        public String function(Function m) {
-            return m.toString();
+        public String function(Function f) {
+            return f.toString();
         }
     };
 
@@ -112,8 +112,8 @@ public class Primitives {
         }
 
         @Override
-        public Function function(Function m) {
-            return m;
+        public Function function(Function f) {
+            return f;
         }
     };
 
@@ -129,7 +129,7 @@ public class Primitives {
         }
 
         @Override
-        public Integer function(Function m) {
+        public Integer function(Function f) {
             throw new NotImplementedException();
         }
     };
