@@ -1,5 +1,7 @@
 package lisp;
 
+import java.util.*;
+
 import lambda.*;
 
 import static lambda.Primitives.toInt;
@@ -9,7 +11,6 @@ import static lambda.Primitives.primitive;
  * @author pmilne
  */
 public class Test {
-    private static final Primitive ZERO = primitive(0);
     private static final Primitive INC = primitive(new Function() {
         @Override
         public Primitive apply(Primitive x) {
@@ -21,48 +22,80 @@ public class Test {
             return "inc";
         }
     });
+    private static final Primitive SUM = primitive(new Function() {
+        @Override
+        public Primitive apply(Primitive x) {
+            return primitive(y -> primitive(toInt(x) + toInt(y)));
+        }
+
+        @Override
+        public String toString() {
+            return "+";
+        }
+    });
+
+    private static final Primitive PRD = primitive(new Function() {
+        @Override
+        public Primitive apply(Primitive x) {
+            return primitive(y -> primitive(toInt(x) * toInt(y)));
+        }
+
+        @Override
+        public String toString() {
+            return "*";
+        }
+    });
+
 
     private static final boolean TEST_PERFORMANCE = false;
 
-    private static int asInteger(Primitive o) {
-        Expression.Visitor<Expression> c = Expressions.CONSTRUCTOR;
-        return toInt(Evaluator.eval(c.application(c.application(c.constant(o), c.constant(INC)), c.constant(ZERO))));
+    private static Map<String, Primitive> getGlobals() {
+        Map<String, Primitive> globals = new HashMap<>();
+        globals.put("inc", INC);
+        globals.put("*", PRD);
+        globals.put("+", SUM);
+        return globals;
     }
 
-    private static void test(String input, String... outputs) {
+    private static final Map<String, Primitive> GLOBALS = getGlobals();
+
+    private static void test(String input, Object... outputs) {
         new Reader(Expressions.CONSTRUCTOR).parse(input, new Reader.Processor<Expression>() {
             private int index = 0;
 
             @Override
             public void process(Expression exp) {
                 System.out.println("Input: " + exp);
-                Primitive value = Evaluator.eval(exp);
+                Expression subst = Expressions.substitute(exp, GLOBALS);
+                Primitive value = Evaluator.eval(subst);
                 Expression out = Decompiler.toExpression(value);
                 String outString = out.toString();
                 System.out.println("Output: " + outString);
-                String output = outputs[index++];
-                assert output.equals(outString);
+                Object output = outputs[index++];
+                assert output.toString().equals(outString);
             }
         });
     }
 
-    private static void test(String input, int output) {
+    private static Primitive[] read(String input) {
+        List<Primitive> result = new ArrayList<>();
         new Reader(Expressions.CONSTRUCTOR).parse(input, exp -> {
-            System.out.println("Input: " + exp);
-            Primitive value = Evaluator.eval(exp);
-            int out = asInteger(value);
-            System.out.println("Output: " + out);
-            assert output == out;
+            Expression subst = Expressions.substitute(exp, GLOBALS);
+            Primitive value = Evaluator.eval(subst);
+            result.add(value);
         });
+        return result.toArray(new Primitive[result.size()]);
     }
 
     private static void test(String input, Class<?> c) {
         try {
             new Reader(Expressions.CONSTRUCTOR).parse(input, exp -> {
                 System.out.println("Input: " + exp);
-                Primitive value = Evaluator.eval(exp);
-                int out = asInteger(value);
-                System.out.println("Output: " + out);
+                Expression subst = Expressions.substitute(exp, GLOBALS);
+                Primitive value = Evaluator.eval(subst);
+                Expression out = Decompiler.toExpression(value);
+                String outString = out.toString();
+                System.out.println("Output: " + outString);
                 assert false;
             });
         } catch (Exception e) {
@@ -71,29 +104,36 @@ public class Test {
     }
 
     public static void main(String[] args) {
-        test("1", "1");
-//        test("(1 2)", "");
-//        test("(1 (2 3) ((4 5 6) 7))", "");
+        GLOBALS.put("two", read("(lambda (f x) (f (f x)))")[0]);
         test("(lambda (x) x)", "(lambda (a) a)");
         test("((lambda (x) x) 1)", "1");
         test("((lambda (x) x) (lambda (x) x))", "(lambda (a) a)");
         test("((lambda (x) (x x)) (lambda (x) x))", "(lambda (a) a)");
-        test("((lambda (f) (f f)) (lambda (f x) (f (f x))))", "(lambda (a) (lambda (b) (a (a (a (a b))))))");
+        test("((lambda (f) (f f)) two)", "(lambda (a) (lambda (b) (a (a (a (a b))))))");
         test("(lambda (f) (f (lambda (x) (f x 1))))", "(lambda (a) (a (lambda (b) ((a b) 1))))");
-        test("((lambda (f) (f f)) (lambda (f x) (f (f x))))", 4); // 2^2
-        test("((lambda (f) (f f f)) (lambda (f x) (f (f x))))", 16); // 2^4
-        test("((lambda (f) (f f f f)) (lambda (f x) (f (f x))))", 65536); // 2^16
-//        test("((lambda (f) (f f f f f)) (lambda (f x) (f (f x))))", 0); // 2^65536 - stack overflow
+        test("((lambda (f) (f f)) two inc 0)", 4); // 2^2
+        test("((lambda (f) (f f f)) two inc 0)", 16); // 2^4
+        test("((lambda (f) (f f f f)) two inc 0)", 65536); // 2^16
+//        test("((lambda (f) (f f f f f)) two)", 0); // 2^65536 - stack overflow
 //        test("((lambda (f) (f f)) (lambda (f) (f f))))", -1); // hangs (correctly)
-        test("((lambda (f) (f (f f) f)) (lambda (f x) (f (f x))))", 65536); // 2^16
-        test("((lambda (f) (f (f f f))) (lambda (f x) (f (f x))))", 256); // 2^8
-        test("((lambda (f) (f f (f f))) (lambda (f x) (f (f x))))", 256); // 2^8
+        test("((lambda (f) (f (f f) f)) two inc 0)", 65536); // 2^16
+        test("((lambda (f) (f (f f f))) two inc 0)", 256); // 2^8
+        test("((lambda (f) (f f (f f))) two inc 0)", 256); // 2^8
+        test("1", 1);
+        test("(2 3)", 9);
+        test("(3)", 3);
+        test("(3 two)", "(lambda (a) (lambda (b) (a (a (a (a (a (a (a (a b))))))))))");
+        test("(two 3)", "(lambda (a) (lambda (b) (a (a (a (a (a (a (a (a (a b)))))))))))");
+        test("(7 8)", 2097152);
+        test("(9 8)", 134217728);
+        test("((2 3) (3 2))", 134217728);
+        test("(1 (2 3) ((4 5) 6))", 0);
         test("(lambda (x) c)", RuntimeException.class);
-//        test("1 2", "1", "2");
+        test("1 2", "1", "2");
         if (TEST_PERFORMANCE) {
             System.out.println("Starting evaluator performance test (typical run time is ~70s)... ");
             long start = System.currentTimeMillis();
-            test("((lambda (f) (f f f (f f))) (lambda (f x) (f (f x))))", 0); // 2^32 about 1 min
+            test("((lambda (f) (f f f (f f))) two inc 0)", 0); // 2^32 about 1 min
             System.out.println("Time: " + (System.currentTimeMillis() - start)/1000.0 + "s");
         }
     }

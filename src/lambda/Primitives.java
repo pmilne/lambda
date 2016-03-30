@@ -57,19 +57,45 @@ public class Primitives {
         }
     };
 
+    // Java's Math.pow pow function does not overflow correctly if its result is coerced to an int.
+    public static int pow(int x, int n) {
+        int result = 1;
+        while (n != 0) {
+            if (n % 2 != 0) {
+                n = n - 1;
+                result = result * x;
+            }
+            n = n >>> 1;
+            x = x * x;
+        }
+        return result;
+    }
+
     public static final Primitive.Visitor<Function> TO_FUNCTION = new Primitive.Visitor<Function>() {
         @Override
-        public Function integer(int n) {
-            return arg1 -> {
-                Function f = toFunction(arg1);
-                return primitive(x -> {
-                    Primitive result = x;
-                    for (int i = 0; i < n; i++) {
-                        result = f.apply(result);
-                    }
-                    return result;
-                });
-            };
+        public Function integer(int n1) {
+            return arg2 -> arg2.accept(new Primitive.Visitor<Primitive>() {
+                @Override
+                public Primitive integer(int n2) {
+                    return primitive(pow(n2, n1));
+                }
+
+                @Override
+                public Primitive string(String s2) {
+                    throw new NotImplementedException();
+                }
+
+                @Override
+                public Primitive function(Function f2) {
+                    return primitive(x -> {
+                        Primitive result = x;
+                        for (int i = 0; i < n1; i++) {
+                            result = f2.apply(result);
+                        }
+                        return result;
+                    });
+                }
+            });
         }
 
         @Override
