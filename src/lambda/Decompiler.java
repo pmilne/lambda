@@ -17,12 +17,12 @@ public class Decompiler {
 
     public static abstract class Converter {
         public abstract Expression convert(Primitive o);
-        public abstract Mole createMole(Expression exp);
+        public abstract Expression getExpression(Function f);
 
         public static Converter create(int level) {
             Expression.Visitor<Expression> c = Expressions.CONSTRUCTOR;
             return new Converter() {
-                public Mole createMole(Expression exp) {
+                private Mole createMole(Expression exp) {
                     return new Mole() {
                         @Override
                         public Expression getExp() {
@@ -33,6 +33,12 @@ public class Decompiler {
                             return primitive(createMole(c.application(exp, convert(a))));
                         }
                     };
+                }
+
+                public Expression getExpression(Function f) {
+                    Expression var = c.symbol(varName(level));
+                    Primitive application = f.apply(primitive(createMole(var)));
+                    return c.lambda(var, convert(application));
                 }
 
                 public Expression convert(Primitive o) {
@@ -52,10 +58,7 @@ public class Decompiler {
                             if (f instanceof Mole) {
                                 return ((Mole) f).getExp();
                             }
-                            Expression var = c.symbol(varName(level));
-                            Converter converter = create(level + 1);
-                            Primitive application = f.apply(primitive(converter.createMole(var)));
-                            return c.lambda(var, converter.convert(application));
+                            return create(level + 1).getExpression(f);
                         }
                     });
                 }
@@ -63,7 +66,7 @@ public class Decompiler {
         }
     }
 
-    public static final Converter TO_EXPRESSION = Converter.create(0);
+    public static final Converter TO_EXPRESSION = Converter.create(-1);
 
     public static Expression toExpression(Primitive o) {
         return TO_EXPRESSION.convert(o);
