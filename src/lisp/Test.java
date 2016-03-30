@@ -92,7 +92,7 @@ public class Test {
         if (TEST_PERFORMANCE) {
             System.out.println("Starting evaluator performance test (typical run time is ~115s)... ");
             long start = System.currentTimeMillis();
-            test("((lambda (f) (f f f (f f))) two inc 0)", 0); // 2^32 about 1 min
+            test("((lambda (f) (f f f (f f))) two inc 0)", 0); // 2^32 about 2 min
             System.out.println("Time: " + (System.currentTimeMillis() - start)/1000.0 + "s");
         }
     }
