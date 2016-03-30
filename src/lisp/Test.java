@@ -57,6 +57,7 @@ public class Test {
     }
 
     public static void main(String[] args) {
+//        System.out.println("decomp: " + Decompiler.toExpression(read("((lambda (f) (f (lambda (x) x))))")[0]));
         GLOBALS.put("two", read("(lambda (f x) (f (f x)))")[0]);
         test("(lambda (x) x)", "(lambda (a) a)");
         test("((lambda (x) x) 1)", "1");

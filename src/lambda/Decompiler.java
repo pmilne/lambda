@@ -1,6 +1,7 @@
 package lambda;
 
 import static lambda.Primitives.primitive;
+import static lambda.Primitives.read;
 
 /**
  * @author pmilne
@@ -12,12 +13,13 @@ public class Decompiler {
     }
 
     private static interface Mole extends Function {
-        Expression getExp();
+        Expression getExpression();
     }
 
     public static abstract class Converter {
-        public abstract Expression convert(Primitive o);
-        public abstract Expression getExpression(Function f);
+        public abstract Expression toExpression(Primitive o);
+
+        public abstract Expression createLambda(Expression var, Function f);
 
         public static Converter create(int level) {
             Expression.Visitor<Expression> c = Expressions.CONSTRUCTOR;
@@ -25,23 +27,21 @@ public class Decompiler {
                 private Mole createMole(Expression exp) {
                     return new Mole() {
                         @Override
-                        public Expression getExp() {
+                        public Expression getExpression() {
                             return exp;
                         }
 
                         public Primitive apply(Primitive a) {
-                            return primitive(createMole(c.application(exp, convert(a))));
+                            return primitive(createMole(c.application(exp, toExpression(a))));
                         }
                     };
                 }
 
-                public Expression getExpression(Function f) {
-                    Expression var = c.symbol(varName(level));
-                    Primitive application = f.apply(primitive(createMole(var)));
-                    return c.lambda(var, convert(application));
+                public Expression createLambda(Expression var, Function f) {
+                    return c.lambda(var, toExpression(f.apply(primitive(createMole(var)))));
                 }
 
-                public Expression convert(Primitive o) {
+                public Expression toExpression(Primitive o) {
                     return o.accept(new Primitive.Visitor<Expression>() {
                         @Override
                         public Expression integer(int i) {
@@ -56,9 +56,9 @@ public class Decompiler {
                         @Override
                         public Expression function(Function f) {
                             if (f instanceof Mole) {
-                                return ((Mole) f).getExp();
+                                return ((Mole) f).getExpression();
                             }
-                            return create(level + 1).getExpression(f);
+                            return create(level + 1).createLambda(c.symbol(varName(level)), f);
                         }
                     });
                 }
@@ -66,9 +66,9 @@ public class Decompiler {
         }
     }
 
-    public static final Converter TO_EXPRESSION = Converter.create(-1);
+    public static final Converter TO_EXPRESSION = Converter.create(0);
 
     public static Expression toExpression(Primitive o) {
-        return TO_EXPRESSION.convert(o);
+        return TO_EXPRESSION.toExpression(o);
     }
 }
