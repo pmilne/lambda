@@ -2,59 +2,61 @@ package expr;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import lambda.*;
+
+import static lambda.Primitives.toInt;
+import static lambda.Primitives.toPrimitive;
 
 /**
  * @author pmilne
  */
 public class Test {
-    public static final Function<Integer, Integer> INC = new Function<Integer, Integer>() {
+    private static final Primitive INC = toPrimitive(new Function() {
         @Override
-        public Integer apply(Integer x) {
-            return x + 1;
+        public Primitive apply(Primitive x) {
+            return toPrimitive(toInt(x) + 1);
         }
 
         @Override
         public String toString() {
             return "inc";
         }
-    };
+    });
 
-    public static final Function<Integer, Function<Integer, Integer>> SUM = new Function<Integer, Function<Integer, Integer>>() {
+    private static final Primitive SUM = toPrimitive(new Function() {
         @Override
-        public Function<Integer, Integer> apply(Integer x) {
-            return y -> x + y;
+        public Primitive apply(Primitive x) {
+            return toPrimitive(y -> toPrimitive(toInt(x) + toInt(y)));
         }
 
         @Override
         public String toString() {
             return "+";
         }
-    };
+    });
 
-    public static final Function<Integer, Function<Integer, Integer>> PRD = new Function<Integer, Function<Integer, Integer>>() {
+    private static final Primitive PRD = toPrimitive(new Function() {
         @Override
-        public Function<Integer, Integer> apply(Integer x) {
-            return y -> x * y;
+        public Primitive apply(Primitive x) {
+            return toPrimitive(y -> toPrimitive(toInt(x) * toInt(y)));
         }
 
         @Override
         public String toString() {
             return "*";
         }
-    };
+    });
 
-    private static Map<String, Object> getGlobals() {
-        Map<String, Object> globals = new HashMap<>();
+    private static Map<String, Primitive> getGlobals() {
+        Map<String, Primitive> globals = new HashMap<>();
+        globals.put("inc", INC);
         globals.put("*", PRD);
         globals.put("+", SUM);
-        globals.put("inc", INC);
         return globals;
     }
 
-    public static final Map<String, Object> GLOBALS = getGlobals();
+    private static final Map<String, Primitive> GLOBALS = getGlobals();
 
     private static void test(String input, String... outputs) {
 //        long start = System.currentTimeMillis();
@@ -66,7 +68,7 @@ public class Test {
                 System.out.println("Input: " + (input.length() > 1000 ? "<too long>" : exp));
 //                System.out.println("Parse time: " + (System.currentTimeMillis() - start)/1000.0 + "s");
                 Expression subst = Expressions.substitute(exp, GLOBALS);
-                Object value = Evaluator.eval(subst);
+                Primitive value = Evaluator.eval(subst);
                 Expression out = Decompiler.toExpression(value);
                 String outString = out.toString();
                 System.out.println("Output: " + outString);

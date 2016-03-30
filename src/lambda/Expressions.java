@@ -9,7 +9,7 @@ public class Expressions {
     public static final Expression.Visitor<Expression> CONSTRUCTOR =
             new Expression.Visitor<Expression>() {
                 @Override
-                public Expression constant(Object c) {
+                public Expression constant(Primitive c) {
                     return new Expression() {
                         @Override
                         public <T> T accept(Visitor<T> visitor) {
@@ -49,9 +49,10 @@ public class Expressions {
                 }
             };
 
+    @SuppressWarnings("WeakerAccess")
     public static final Expression.Visitor<String> TO_STRING = new Expression.Visitor<String>() {
         @Override
-        public String constant(Object c) {
+        public String constant(Primitive c) {
             return c.toString();
         }
 
@@ -72,11 +73,11 @@ public class Expressions {
     };
 
 
-    public static Expression substitute(Expression input, Map<String, Object> env) {
+    public static Expression substitute(Expression input, Map<String, Primitive> env) {
         Expression.Visitor<Expression> c = Expressions.CONSTRUCTOR;
         return input.accept(new Expression.Visitor<Expression>() {
             @Override
-            public Expression constant(Object value) {
+            public Expression constant(Primitive value) {
                 return c.constant(value);
             }
 

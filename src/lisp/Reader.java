@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lambda.Expression;
+import lambda.Primitives;
 
 /**
  * A side-effect free parser of lambda expressions. The goal is to get this into a canonical form which
@@ -181,7 +182,7 @@ public class Reader {
 
             @Override
             public Parser number(String s) {
-                return outer.reduce(constructor.constant(Integer.parseInt(s)));
+                return outer.reduce(constructor.constant(Primitives.CONSTRUCTOR.integer(Integer.parseInt(s))));
             }
 
             @Override

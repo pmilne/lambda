@@ -12,7 +12,7 @@ public abstract class Expression {
     }
 
     public static abstract class Visitor<T> {
-        public abstract T constant(Object c);
+        public abstract T constant(Primitive c);
 
         public abstract T symbol(String name);
 

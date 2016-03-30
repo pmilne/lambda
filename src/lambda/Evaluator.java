@@ -1,6 +1,6 @@
 package lambda;
 
-import java.util.function.Function;
+import static lambda.Primitives.toFunction;
 
 /**
  * @author pmilne
@@ -39,17 +39,14 @@ public class Evaluator {
     }
 
     public static interface Implementation {
-        public Object eval(Stack<Object> valueStack);
+        public Primitive eval(Stack<Primitive> valueStack);
     }
-
-    // Used by the experimental 'Decompiler'.
-    public static interface Marker extends Function<Object, Object> {}
 
     // This visitor turns symbols into numbers at 'compile' time and provides a mechanism for evaluation.
     private static Expression.Visitor<Implementation> createCompiler(Stack<String> nameStack) {
         return new Expression.Visitor<Implementation>() {
                     @Override
-                    public Implementation constant(Object value) {
+                    public Implementation constant(Primitive value) {
                         return env -> value;
                     }
 
@@ -63,14 +60,14 @@ public class Evaluator {
                     public Implementation application(Expression fun, Expression arg) {
                         Implementation fun0 = fun.accept(this);
                         Implementation arg0 = arg.accept(this);
-                        return env -> ((Function) fun0.eval(env)).apply(arg0.eval(env));
+                        return env -> toFunction(fun0.eval(env)).apply(arg0.eval(env));
                     }
 
                     @Override
                     public Implementation lambda(Expression var, Expression exp) {
                         String varName = var.accept(Expressions.TO_STRING);
                         Implementation exp0 = exp.accept(createCompiler(Stack.create(nameStack, varName)));
-                        return env -> (Marker) arg -> exp0.eval(Stack.create(env, arg));
+                        return env -> Primitives.CONSTRUCTOR.function(arg -> exp0.eval(Stack.create(env, arg)));
                     }
                 };
     }
@@ -82,7 +79,7 @@ public class Evaluator {
         }
     });
 
-    public static Object eval(Expression input) {
+    public static Primitive eval(Expression input) {
         return input.accept(COMPILER).eval(null);
     }
 }

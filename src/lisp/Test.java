@@ -1,20 +1,32 @@
 package lisp;
 
-import java.util.function.Function;
-
 import lambda.*;
+
+import static lambda.Primitives.toInt;
+import static lambda.Primitives.toPrimitive;
 
 /**
  * @author pmilne
  */
 public class Test {
-    private static final Expression ZERO = Expressions.CONSTRUCTOR.constant(0);
-    private static final Expression INC = Expressions.CONSTRUCTOR.constant((Function<Integer, Integer>) x -> x + 1);
+    private static final Primitive ZERO = toPrimitive(0);
+    private static final Primitive INC = toPrimitive(new Function() {
+        @Override
+        public Primitive apply(Primitive x) {
+            return toPrimitive(toInt(x) + 1);
+        }
+
+        @Override
+        public String toString() {
+            return "inc";
+        }
+    });
+
     private static final boolean TEST_PERFORMANCE = false;
 
-    private static int asInteger(Object o) {
+    private static int asInteger(Primitive o) {
         Expression.Visitor<Expression> c = Expressions.CONSTRUCTOR;
-        return (int) Evaluator.eval(c.application(c.application(c.constant(o), INC), ZERO));
+        return toInt(Evaluator.eval(c.application(c.application(c.constant(o), c.constant(INC)), c.constant(ZERO))));
     }
 
     private static void test(String input, String... outputs) {
@@ -24,7 +36,7 @@ public class Test {
             @Override
             public void process(Expression exp) {
                 System.out.println("Input: " + exp);
-                Object value = Evaluator.eval(exp);
+                Primitive value = Evaluator.eval(exp);
                 Expression out = Decompiler.toExpression(value);
                 String outString = out.toString();
                 System.out.println("Output: " + outString);
@@ -37,7 +49,7 @@ public class Test {
     private static void test(String input, int output) {
         new Reader(Expressions.CONSTRUCTOR).parse(input, exp -> {
             System.out.println("Input: " + exp);
-            Object value = Evaluator.eval(exp);
+            Primitive value = Evaluator.eval(exp);
             int out = asInteger(value);
             System.out.println("Output: " + out);
             assert output == out;
@@ -48,7 +60,7 @@ public class Test {
         try {
             new Reader(Expressions.CONSTRUCTOR).parse(input, exp -> {
                 System.out.println("Input: " + exp);
-                Object value = Evaluator.eval(exp);
+                Primitive value = Evaluator.eval(exp);
                 int out = asInteger(value);
                 System.out.println("Output: " + out);
                 assert false;
