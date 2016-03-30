@@ -1,5 +1,9 @@
 package lambda;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import lisp.Reader;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 /**
@@ -126,7 +130,13 @@ public class Primitives {
         }
     };
 
-    // constructors
+    public static Primitive[] read(String input) {
+        List<Primitive> result = new ArrayList<>();
+        new Reader(Expressions.CONSTRUCTOR).parse(input, exp -> result.add(Evaluator.eval(exp)));
+        return result.toArray(new Primitive[result.size()]);
+    }
+
+    // Constructors
 
     public static Primitive primitive(int i) {
         return CONSTRUCTOR.integer(i);
@@ -136,7 +146,7 @@ public class Primitives {
         return CONSTRUCTOR.function(m);
     }
 
-    // accessors
+    // Accessors
 
     public static int toInt(Primitive p) {
         return p.accept(TO_INT);
@@ -146,4 +156,41 @@ public class Primitives {
         return p.accept(TO_FUNCTION);
     }
 
+    // Some useful constants
+
+    public static final Primitive INC = primitive(new Function() {
+        @Override
+        public Primitive apply(Primitive x) {
+            return primitive(toInt(x) + 1);
+        }
+
+        @Override
+        public String toString() {
+            return "inc";
+        }
+    });
+
+    public static final Primitive SUM = primitive(new Function() {
+        @Override
+        public Primitive apply(Primitive x) {
+            return primitive(y -> primitive(toInt(x) + toInt(y)));
+        }
+
+        @Override
+        public String toString() {
+            return "+";
+        }
+    });
+
+    public static final Primitive PRD = primitive(new Function() {
+        @Override
+        public Primitive apply(Primitive x) {
+            return primitive(y -> primitive(toInt(x) * toInt(y)));
+        }
+
+        @Override
+        public String toString() {
+            return "*";
+        }
+    });
 }

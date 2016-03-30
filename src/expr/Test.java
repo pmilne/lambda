@@ -5,49 +5,12 @@ import java.util.Map;
 
 import lambda.*;
 
-import static lambda.Primitives.toInt;
-import static lambda.Primitives.primitive;
+import static lambda.Primitives.*;
 
 /**
  * @author pmilne
  */
 public class Test {
-    private static final Primitive INC = primitive(new Function() {
-        @Override
-        public Primitive apply(Primitive x) {
-            return primitive(toInt(x) + 1);
-        }
-
-        @Override
-        public String toString() {
-            return "inc";
-        }
-    });
-
-    private static final Primitive SUM = primitive(new Function() {
-        @Override
-        public Primitive apply(Primitive x) {
-            return primitive(y -> primitive(toInt(x) + toInt(y)));
-        }
-
-        @Override
-        public String toString() {
-            return "+";
-        }
-    });
-
-    private static final Primitive PRD = primitive(new Function() {
-        @Override
-        public Primitive apply(Primitive x) {
-            return primitive(y -> primitive(toInt(x) * toInt(y)));
-        }
-
-        @Override
-        public String toString() {
-            return "*";
-        }
-    });
-
     private static Map<String, Primitive> getGlobals() {
         Map<String, Primitive> globals = new HashMap<>();
         globals.put("inc", INC);
