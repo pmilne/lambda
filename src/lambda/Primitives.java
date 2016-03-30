@@ -75,31 +75,35 @@ public class Primitives {
         return result;
     }
 
+    private static Function toFunction(int n1) {
+        return arg2 -> arg2.accept(new Primitive.Visitor<Primitive>() {
+            @Override
+            public Primitive integer(int n2) {
+                return primitive(pow(n2, n1));
+            }
+
+            @Override
+            public Primitive string(String s2) {
+                throw new NotImplementedException();
+            }
+
+            @Override
+            public Primitive function(Function f2) {
+                return primitive(x -> {
+                    Primitive result = x;
+                    for (int i = 0; i < n1; i++) {
+                        result = f2.apply(result);
+                    }
+                    return result;
+                });
+            }
+        });
+    }
+
     public static final Primitive.Visitor<Function> TO_FUNCTION = new Primitive.Visitor<Function>() {
         @Override
         public Function integer(int n1) {
-            return arg2 -> arg2.accept(new Primitive.Visitor<Primitive>() {
-                @Override
-                public Primitive integer(int n2) {
-                    return primitive(pow(n2, n1));
-                }
-
-                @Override
-                public Primitive string(String s2) {
-                    throw new NotImplementedException();
-                }
-
-                @Override
-                public Primitive function(Function f2) {
-                    return primitive(x -> {
-                        Primitive result = x;
-                        for (int i = 0; i < n1; i++) {
-                            result = f2.apply(result);
-                        }
-                        return result;
-                    });
-                }
-            });
+            return toFunction(n1);
         }
 
         @Override

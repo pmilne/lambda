@@ -10,7 +10,7 @@ import static lambda.Primitives.*;
  * @author pmilne
  */
 public class Test {
-    private static final boolean TEST_PERFORMANCE = false;
+    private static final boolean TEST_PERFORMANCE = true;
 
     private static Map<String, Primitive> getGlobals() {
         Map<String, Primitive> globals = new HashMap<>();
@@ -90,9 +90,9 @@ public class Test {
         test("(lambda (x) c)", RuntimeException.class);
         test("1 2", "1", "2");
         if (TEST_PERFORMANCE) {
-            System.out.println("Starting evaluator performance test (typical run time is ~115s)... ");
+            System.out.println("Starting evaluator performance test (typical run time is ~105s)... ");
             long start = System.currentTimeMillis();
-            test("((lambda (f) (f f f (f f))) two inc 0)", 0); // 2^32 about 2 min
+            test("((lambda (f) (f f f (f f))) two inc 0)", 0); // 2^32
             System.out.println("Time: " + (System.currentTimeMillis() - start)/1000.0 + "s");
         }
     }
