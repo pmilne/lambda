@@ -7,7 +7,7 @@ import static lambda.Primitives.toFunction;
  */
 @SuppressWarnings("UnnecessaryInterfaceModifier, WeakerAccess")
 public class Evaluator {
-    // A misnomer, this Stack is immutable -- and lives in the heap.
+    // A misnomer, Stack is immutable and heap allocated.
     public static class Stack<T> {
         private final Stack<T> parent;
         private final T value;
