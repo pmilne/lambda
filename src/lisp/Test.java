@@ -123,9 +123,14 @@ public class Test {
         test("(2 3)", 9);
         test("(3)", 3);
         test("(3 two)", "(lambda (a) (lambda (b) (a (a (a (a (a (a (a (a b))))))))))");
+        test("(3 two inc 0)", 8);
         test("(two 3)", "(lambda (a) (lambda (b) (a (a (a (a (a (a (a (a (a b)))))))))))");
+        test("(two 3 inc 0)", 9);
         test("(7 8)", 2097152);
         test("(9 8)", 134217728);
+        test("(* 2 3)", 6);
+        test("(+ 2 3)", 5);
+        test("(+ 1 (* 2 3))", 7);
         test("((2 3) (3 2))", 134217728);
         test("(1 (2 3) ((4 5) 6))", 0);
         test("(lambda (x) c)", RuntimeException.class);

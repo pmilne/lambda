@@ -35,7 +35,7 @@ public class Reader {
                 new TokenType("\\(", Parser::lParen),
                 new TokenType("\\)", Parser::rParen),
                 new TokenType("lambda", Parser::lambda), // this has to come before 'symbol' below as that also matches.
-                new TokenType("[a-zA-Z_]\\w*", Parser::symbol),
+                new TokenType("[a-zA-Z_]\\w*|\\*|\\+", Parser::symbol),
                 new TokenType("\\s+", Parser::whiteSpace)
         };
     }
