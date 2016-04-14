@@ -3,6 +3,7 @@ package lambda;
 /**
  * @author pmilne
  */
+@SuppressWarnings("WeakerAccess")
 public class List<T> {
     private final List<T> parent;
     private final T value;
