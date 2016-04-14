@@ -7,43 +7,13 @@ import static lambda.Primitives.toFunction;
  */
 @SuppressWarnings("UnnecessaryInterfaceModifier, WeakerAccess")
 public class Evaluator {
-    // A misnomer, Stack is immutable and heap allocated.
-    public static class Stack<T> {
-        private final Stack<T> parent;
-        private final T value;
-
-        private Stack(Stack<T> parent, T value) {
-            this.parent = parent;
-            this.value = value;
-        }
-
-        public static <T> Stack<T> create(Stack<T> parent, T value) {
-            return new Stack<>(parent, value);
-        }
-
-        public T get(int n) {
-            Stack<T> that = this;
-            for (int i = 0; i < n; i++) {
-                that = that.parent;
-            }
-            return that.value;
-        }
-
-        public int indexOf(T o) {
-            return value.equals(o) ? 0 : 1 + parent.indexOf(o);
-        }
-
-        public String toString() {
-            return "{" + parent + " " + value + "}";
-        }
-    }
 
     public static interface Implementation {
-        public Primitive eval(Stack<Primitive> valueStack);
+        public Primitive eval(List<Primitive> valueStack);
     }
 
     // This visitor turns symbols into numbers at 'compile' time and provides a mechanism for evaluation.
-    private static Expression.Visitor<Implementation> createCompiler(Stack<String> nameStack) {
+    private static Expression.Visitor<Implementation> createCompiler(List<String> nameStack) {
         return new Expression.Visitor<Implementation>() {
                     @Override
                     public Implementation constant(Primitive value) {
@@ -66,13 +36,13 @@ public class Evaluator {
                     @Override
                     public Implementation lambda(Expression var, Expression exp) {
                         String varName = var.accept(Expressions.TO_STRING);
-                        Implementation exp0 = exp.accept(createCompiler(Stack.create(nameStack, varName)));
-                        return env -> Primitives.CONSTRUCTOR.function(arg -> exp0.eval(Stack.create(env, arg)));
+                        Implementation exp0 = exp.accept(createCompiler(List.create(nameStack, varName)));
+                        return env -> Primitives.CONSTRUCTOR.function(arg -> exp0.eval(List.create(env, arg)));
                     }
                 };
     }
 
-    public static final Expression.Visitor<Implementation> COMPILER = createCompiler(new Stack<String>(null, null) {
+    public static final Expression.Visitor<Implementation> COMPILER = createCompiler(new List<String>(null, null) {
         @Override
         public int indexOf(String name) {
             throw new RuntimeException("Undefined variable: " + name);
