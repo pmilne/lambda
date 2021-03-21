@@ -136,7 +136,7 @@ public class Primitives {
 
     public static Primitive[] read(String input) {
         List<Primitive> result = new ArrayList<>();
-        new Reader(Expressions.CONSTRUCTOR).parse(input, exp -> result.add(Evaluator.eval(exp)));
+        new Reader(Expressions.CONSTRUCTOR).parse(input, exp -> result.add(Compiler.eval(exp)));
         return result.toArray(new Primitive[result.size()]);
     }
 

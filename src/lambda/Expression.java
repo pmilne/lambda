@@ -16,7 +16,7 @@ public abstract class Expression {
 
         public abstract T symbol(String name);
 
-        public abstract T lambda(Expression var, Expression exp);
+        public abstract T lambda(String var, Expression exp);
 
         public abstract T application(Expression fun, Expression arg);
     }

@@ -39,7 +39,7 @@ public class Expressions {
                 }
 
                 @Override
-                public Expression lambda(Expression var, Expression exp) {
+                public Expression lambda(String var, Expression exp) {
                     return new Expression() {
                         @Override
                         public <T> T accept(Visitor<T> visitor) {
@@ -67,8 +67,8 @@ public class Expressions {
         }
 
         @Override
-        public String lambda(Expression var, Expression exp) {
-            return "(lambda (" + var.accept(this) + ") " + exp.accept(this) + ")";
+        public String lambda(String var, Expression exp) {
+            return "(lambda (" + var + ") " + exp.accept(this) + ")";
         }
     };
 
@@ -87,9 +87,9 @@ public class Expressions {
             }
 
             @Override
-            public Expression lambda(Expression var, Expression exp) {
-                return env.containsKey(var.toString()) ?
-                        c.lambda(var, exp) : c.lambda(var.accept(this), exp.accept(this));
+            public Expression lambda(String var, Expression exp) {
+                return env.containsKey(var) ?
+                        c.lambda(var, exp) : c.lambda(var, exp.accept(this));
             }
 
             @Override

@@ -205,7 +205,7 @@ public class Reader {
 
             @Override
             public Parser symbol(String s) { // create nested lambdas using right-association
-                return lambdaParser(e -> outer.reduce(constructor.lambda(constructor.symbol(s), e)));
+                return lambdaParser(e -> outer.reduce(constructor.lambda(s, e)));
             }
 
             @Override

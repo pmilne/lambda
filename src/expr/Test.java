@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lambda.*;
+import lambda.Compiler;
 
 import static lambda.Primitives.*;
 
@@ -31,7 +32,7 @@ public class Test {
                 System.out.println("Input: " + (input.length() > 1000 ? "<too long>" : exp));
 //                System.out.println("Parse time: " + (System.currentTimeMillis() - start)/1000.0 + "s");
                 Expression subst = Expressions.substitute(exp, GLOBALS);
-                Primitive value = Evaluator.eval(subst);
+                Primitive value = Compiler.eval(subst);
                 Expression out = Decompiler.toExpression(value);
                 String outString = out.toString();
                 System.out.println("Output: " + outString);

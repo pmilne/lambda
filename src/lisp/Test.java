@@ -3,6 +3,7 @@ package lisp;
 import java.util.*;
 
 import lambda.*;
+import lambda.Compiler;
 
 import static lambda.Primitives.*;
 
@@ -30,7 +31,7 @@ public class Test {
             public void process(Expression exp) {
                 System.out.println("Input: " + exp);
                 Expression subst = Expressions.substitute(exp, GLOBALS);
-                Primitive value = Evaluator.eval(subst);
+                Primitive value = Compiler.eval(subst);
                 Expression out = Decompiler.toExpression(value);
                 String outString = out.toString();
                 System.out.println("Output: " + outString);
@@ -45,7 +46,7 @@ public class Test {
             new Reader(Expressions.CONSTRUCTOR).parse(input, exp -> {
                 System.out.println("Input: " + exp);
                 Expression subst = Expressions.substitute(exp, GLOBALS);
-                Primitive value = Evaluator.eval(subst);
+                Primitive value = Compiler.eval(subst);
                 Expression out = Decompiler.toExpression(value);
                 String outString = out.toString();
                 System.out.println("Output: " + outString);

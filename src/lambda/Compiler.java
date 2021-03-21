@@ -6,7 +6,7 @@ import static lambda.Primitives.toFunction;
  * @author pmilne
  */
 @SuppressWarnings("UnnecessaryInterfaceModifier, WeakerAccess")
-public class Evaluator {
+public class Compiler {
 
     public static interface Implementation {
         public Primitive eval(List<Primitive> valueStack);

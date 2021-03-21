@@ -1,7 +1,6 @@
 package lambda;
 
 import static lambda.Primitives.primitive;
-import static lambda.Primitives.read;
 
 /**
  * @author pmilne
@@ -19,7 +18,7 @@ public class Decompiler {
     public static abstract class Converter {
         public abstract Expression toExpression(Primitive o);
 
-        public abstract Expression createLambda(Expression var, Function f);
+        public abstract Expression createLambda(String var, Function f);
 
         public static Converter create(int level) {
             Expression.Visitor<Expression> c = Expressions.CONSTRUCTOR;
@@ -37,8 +36,8 @@ public class Decompiler {
                     };
                 }
 
-                public Expression createLambda(Expression var, Function f) {
-                    return c.lambda(var, toExpression(f.apply(primitive(createMole(var)))));
+                public Expression createLambda(String var, Function f) {
+                    return c.lambda(var, toExpression(f.apply(primitive(createMole(c.symbol(var))))));
                 }
 
                 public Expression toExpression(Primitive o) {
@@ -58,7 +57,7 @@ public class Decompiler {
                             if (f instanceof Mole) {
                                 return ((Mole) f).getExpression();
                             }
-                            return create(level + 1).createLambda(c.symbol(varName(level)), f);
+                            return create(level + 1).createLambda(varName(level), f);
                         }
                     });
                 }
