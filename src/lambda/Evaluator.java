@@ -41,12 +41,15 @@ public class Evaluator {
         };
     }
 
-    public static final Expression.Visitor<Primitive> EVALUATOR = evaluator(name -> {
-                throw new RuntimeException("Undefined variable: " + name);
-            }
-    );
+    private static final Function<String, Primitive>   TOP   = name -> {
+        throw new RuntimeException("Undefined variable: " + name);
+    };
+
+    public static Primitive eval(Expression input, Function<String, Primitive> env) {
+        return input.accept(evaluator(env));
+    }
 
     public static Primitive eval(Expression input) {
-        return input.accept(EVALUATOR);
+        return eval(input, TOP);
     }
 }
