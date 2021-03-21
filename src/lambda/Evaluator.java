@@ -8,6 +8,10 @@ import static lambda.Primitives.toFunction;
  * @author pmilne
  */
 public class Evaluator {
+    private static final Function<String, Primitive> TOP = name -> {
+        throw new RuntimeException("Undefined variable: " + name);
+    };
+
     public static Primitive eval(Expression input, Function<String, Primitive> env) {
         return input.accept(new Expression.Visitor<Primitive>() {
             @Override
@@ -35,8 +39,6 @@ public class Evaluator {
     }
 
     public static Primitive eval(Expression input) {
-        return eval(input, name -> {
-            throw new RuntimeException("Undefined variable: " + name);
-        });
+        return eval(input, TOP);
     }
 }
