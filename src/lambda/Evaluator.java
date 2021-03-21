@@ -15,7 +15,7 @@ public class Evaluator {
     }
 
     // This visitor returns the value of an expression.
-    private static Expression.Visitor<Primitive> createEvaluator(Function<String, Primitive> env) {
+    private static Expression.Visitor<Primitive> evaluator(Function<String, Primitive> env) {
         return new Expression.Visitor<Primitive>() {
             @Override
             public Primitive constant(Primitive value) {
@@ -36,12 +36,12 @@ public class Evaluator {
 
             @Override
             public Primitive lambda(String var, Expression exp) {
-                return Primitives.CONSTRUCTOR.function(arg -> exp.accept(createEvaluator(s -> s.equals(var) ? arg : env.apply(s))));
+                return Primitives.CONSTRUCTOR.function(arg -> exp.accept(evaluator(s -> s.equals(var) ? arg : env.apply(s))));
             }
         };
     }
 
-    public static final Expression.Visitor<Primitive> EVALUATOR = createEvaluator(name -> {
+    public static final Expression.Visitor<Primitive> EVALUATOR = evaluator(name -> {
                 throw new RuntimeException("Undefined variable: " + name);
             }
     );
