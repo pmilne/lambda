@@ -59,13 +59,13 @@ public class Test {
     }
 
     private static void test(String input, Object... outputs) {
-//        test(Evaluator::eval, input, outputs);
-        test(Compiler::eval, input, outputs);
+        test(Evaluator::eval, input, outputs);
+//        test(Compiler::eval, input, outputs);
     }
 
     private static void test(String input, Class<?> c) {
-//        test(Evaluator::eval, input, c);
-        test(Compiler::eval, input, c);
+        test(Evaluator::eval, input, c);
+//        test(Compiler::eval, input, c);
     }
 
     public static void main(String[] args) {
