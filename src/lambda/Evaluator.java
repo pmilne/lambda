@@ -12,8 +12,8 @@ public class Evaluator {
         throw new RuntimeException("Undefined variable: " + name);
     };
 
-    public static Primitive eval(Expression input, Function<String, Primitive> env) {
-        return input.accept(new Expression.Visitor<Primitive>() {
+    public static Primitive eval(Expression e, Function<String, Primitive> env) {
+        return e.accept(new Expression.Visitor<Primitive>() {
             @Override
             public Primitive constant(Primitive value) {
                 return value;
@@ -38,7 +38,7 @@ public class Evaluator {
         });
     }
 
-    public static Primitive eval(Expression input) {
-        return eval(input, TOP);
+    public static Primitive eval(Expression e) {
+        return eval(e, TOP);
     }
 }
