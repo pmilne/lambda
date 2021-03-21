@@ -33,7 +33,7 @@ public class Evaluator {
 
             @Override
             public Primitive lambda(String var, Expression exp) {
-                return Primitives.CONSTRUCTOR.function(arg -> eval(exp, s -> s.equals(var) ? arg : env.apply(s)));
+                return Primitives.CONSTRUCTOR.function(arg -> eval(exp, symbol -> symbol.equals(var) ? arg : env.apply(symbol)));
             }
         });
     }
