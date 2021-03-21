@@ -42,10 +42,6 @@ public class Test {
         });
     }
 
-    private static void test(String input, Object... outputs) {
-        test(Compiler::eval, input, outputs);
-    }
-
     private static void test(Function<Expression, Primitive> evaluator, String input, Class<?> c) {
         try {
             new Reader(Expressions.CONSTRUCTOR).parse(input, exp -> {
@@ -62,8 +58,14 @@ public class Test {
         }
     }
 
+    private static void test(String input, Object... outputs) {
+        test(Evaluator::eval, input, outputs);
+//        test(Compiler::eval, input, outputs);
+    }
+
     private static void test(String input, Class<?> c) {
-        test(Compiler::eval, input, c);
+        test(Evaluator::eval, input, c);
+//        test(Compiler::eval, input, c);
     }
 
     public static void main(String[] args) {
