@@ -1,6 +1,7 @@
 package lisp;
 
 import java.util.*;
+import java.util.function.Function;
 
 import lambda.*;
 import lambda.Compiler;
@@ -23,7 +24,7 @@ public class Test {
 
     private static final Map<String, Primitive> GLOBALS = getGlobals();
 
-    private static void test(String input, Object... outputs) {
+    private static void test(Function<Expression, Primitive> evaluator, String input, Object... outputs) {
         new Reader(Expressions.CONSTRUCTOR).parse(input, new Reader.Processor<Expression>() {
             private int index = 0;
 
@@ -31,7 +32,7 @@ public class Test {
             public void process(Expression exp) {
                 System.out.println("Input: " + exp);
                 Expression subst = Expressions.substitute(exp, GLOBALS);
-                Primitive value = Compiler.eval(subst);
+                Primitive value = evaluator.apply(subst);
                 Expression out = Decompiler.toExpression(value);
                 String outString = out.toString();
                 System.out.println("Output: " + outString);
@@ -41,12 +42,16 @@ public class Test {
         });
     }
 
-    private static void test(String input, Class<?> c) {
+    private static void test(String input, Object... outputs) {
+        test(Compiler::eval, input, outputs);
+    }
+
+    private static void test(Function<Expression, Primitive> evaluator, String input, Class<?> c) {
         try {
             new Reader(Expressions.CONSTRUCTOR).parse(input, exp -> {
                 System.out.println("Input: " + exp);
                 Expression subst = Expressions.substitute(exp, GLOBALS);
-                Primitive value = Compiler.eval(subst);
+                Primitive value = evaluator.apply(subst);
                 Expression out = Decompiler.toExpression(value);
                 String outString = out.toString();
                 System.out.println("Output: " + outString);
@@ -55,6 +60,10 @@ public class Test {
         } catch (Exception e) {
             assert c.isAssignableFrom(e.getClass());
         }
+    }
+
+    private static void test(String input, Class<?> c) {
+        test(Compiler::eval, input, c);
     }
 
     public static void main(String[] args) {

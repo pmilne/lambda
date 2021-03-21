@@ -11,14 +11,14 @@ public class Decompiler {
         return new String(new byte[]{(byte) ('a' + i)});
     }
 
-    private static interface Mole extends Function {
+    private static interface Mole extends PrimitiveFunction {
         Expression getExpression();
     }
 
     public static abstract class Converter {
         public abstract Expression toExpression(Primitive o);
 
-        public abstract Expression createLambda(String var, Function f);
+        public abstract Expression createLambda(String var, PrimitiveFunction f);
 
         public static Converter create(int level) {
             Expression.Visitor<Expression> c = Expressions.CONSTRUCTOR;
@@ -36,7 +36,7 @@ public class Decompiler {
                     };
                 }
 
-                public Expression createLambda(String var, Function f) {
+                public Expression createLambda(String var, PrimitiveFunction f) {
                     return c.lambda(var, toExpression(f.apply(primitive(createMole(c.symbol(var))))));
                 }
 
@@ -53,7 +53,7 @@ public class Decompiler {
                         }
 
                         @Override
-                        public Expression function(Function f) {
+                        public Expression function(PrimitiveFunction f) {
                             if (f instanceof Mole) {
                                 return ((Mole) f).getExpression();
                             }

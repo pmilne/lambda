@@ -17,6 +17,6 @@ public abstract class Primitive {
 
         public abstract T string(String s);
 
-        public abstract T function(Function f);
+        public abstract T function(PrimitiveFunction f);
     }
 }

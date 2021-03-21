@@ -3,6 +3,6 @@ package lambda;
 /**
  * @author pmilne
  */
-public interface Function {
+public interface PrimitiveFunction {
     Primitive apply(Primitive primitive);
 }

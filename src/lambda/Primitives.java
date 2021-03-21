@@ -34,7 +34,7 @@ public class Primitives {
                 }
 
                 @Override
-                public Primitive function(Function f) {
+                public Primitive function(PrimitiveFunction f) {
                     return new Primitive() {
                         @Override
                         public <T> T accept(Visitor<T> visitor) {
@@ -56,7 +56,7 @@ public class Primitives {
         }
 
         @Override
-        public String function(Function f) {
+        public String function(PrimitiveFunction f) {
             return f.toString();
         }
     };
@@ -75,7 +75,7 @@ public class Primitives {
         return result;
     }
 
-    private static Function toFunction(int n1) {
+    private static PrimitiveFunction toFunction(int n1) {
         return arg2 -> arg2.accept(new Primitive.Visitor<Primitive>() {
             @Override
             public Primitive integer(int n2) {
@@ -88,7 +88,7 @@ public class Primitives {
             }
 
             @Override
-            public Primitive function(Function f2) {
+            public Primitive function(PrimitiveFunction f2) {
                 return primitive(x -> {
                     Primitive result = x;
                     for (int i = 0; i < n1; i++) {
@@ -100,19 +100,19 @@ public class Primitives {
         });
     }
 
-    public static final Primitive.Visitor<Function> TO_FUNCTION = new Primitive.Visitor<Function>() {
+    public static final Primitive.Visitor<PrimitiveFunction> TO_FUNCTION = new Primitive.Visitor<PrimitiveFunction>() {
         @Override
-        public Function integer(int n1) {
+        public PrimitiveFunction integer(int n1) {
             return toFunction(n1);
         }
 
         @Override
-        public Function string(String s) {
+        public PrimitiveFunction string(String s) {
             throw new NotImplementedException();
         }
 
         @Override
-        public Function function(Function f) {
+        public PrimitiveFunction function(PrimitiveFunction f) {
             return f;
         }
     };
@@ -129,7 +129,7 @@ public class Primitives {
         }
 
         @Override
-        public Integer function(Function f) {
+        public Integer function(PrimitiveFunction f) {
             throw new NotImplementedException();
         }
     };
@@ -146,7 +146,7 @@ public class Primitives {
         return CONSTRUCTOR.integer(i);
     }
 
-    public static Primitive primitive(Function m) {
+    public static Primitive primitive(PrimitiveFunction m) {
         return CONSTRUCTOR.function(m);
     }
 
@@ -156,13 +156,13 @@ public class Primitives {
         return p.accept(TO_INT);
     }
 
-    public static Function toFunction(Primitive p) {
+    public static PrimitiveFunction toFunction(Primitive p) {
         return p.accept(TO_FUNCTION);
     }
 
     // Some useful constants
 
-    public static final Primitive INC = primitive(new Function() {
+    public static final Primitive INC = primitive(new PrimitiveFunction() {
         @Override
         public Primitive apply(Primitive x) {
             return primitive(toInt(x) + 1);
@@ -174,7 +174,7 @@ public class Primitives {
         }
     });
 
-    public static final Primitive SUM = primitive(new Function() {
+    public static final Primitive SUM = primitive(new PrimitiveFunction() {
         @Override
         public Primitive apply(Primitive x) {
             return primitive(y -> primitive(toInt(x) + toInt(y)));
@@ -186,7 +186,7 @@ public class Primitives {
         }
     });
 
-    public static final Primitive PRD = primitive(new Function() {
+    public static final Primitive PRD = primitive(new PrimitiveFunction() {
         @Override
         public Primitive apply(Primitive x) {
             return primitive(y -> primitive(toInt(x) * toInt(y)));
