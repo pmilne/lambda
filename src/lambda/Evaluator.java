@@ -1,5 +1,7 @@
 package lambda;
 
+import java.util.function.Function;
+
 import static lambda.Primitives.toFunction;
 
 /**
@@ -12,43 +14,39 @@ public class Evaluator {
         public Primitive eval(List<Primitive> valueStack);
     }
 
-    // This visitor turns symbols into numbers at 'compile' time and provides a mechanism for evaluation.
-    private static Expression.Visitor<Implementation> createEvaluator(List<String> nameStack) {
-        return new Expression.Visitor<Implementation>() {
-                    @Override
-                    public Implementation constant(Primitive value) {
-                        return env -> value;
-                    }
+    // This visitor returns the value of an expression.
+    private static Expression.Visitor<Primitive> createEvaluator(Function<String, Primitive> env) {
+        return new Expression.Visitor<Primitive>() {
+            @Override
+            public Primitive constant(Primitive value) {
+                return value;
+            }
 
-                    @Override
-                    public Implementation symbol(String name) {
-                        int index = nameStack.indexOf(name);
-                        return env -> env.get(index);
-                    }
+            @Override
+            public Primitive symbol(String name) {
+                return env.apply(name);
+            }
 
-                    @Override
-                    public Implementation application(Expression fun, Expression arg) {
-                        Implementation fun0 = fun.accept(this);
-                        Implementation arg0 = arg.accept(this);
-                        return env -> toFunction(fun0.eval(env)).apply(arg0.eval(env));
-                    }
+            @Override
+            public Primitive application(Expression fun, Expression arg) {
+                Primitive fun0 = fun.accept(this);
+                Primitive arg0 = arg.accept(this);
+                return toFunction(fun0).apply(arg0);
+            }
 
-                    @Override
-                    public Implementation lambda(String var, Expression exp) {
-                        Implementation exp0 = exp.accept(createEvaluator(List.create(nameStack, var)));
-                        return env -> Primitives.CONSTRUCTOR.function(arg -> exp0.eval(List.create(env, arg)));
-                    }
-                };
+            @Override
+            public Primitive lambda(String var, Expression exp) {
+                return Primitives.CONSTRUCTOR.function(arg -> exp.accept(createEvaluator(s -> s == var ? arg : env.apply(s))));
+            }
+        };
     }
 
-    public static final Expression.Visitor<Implementation> EVALUATOR = createEvaluator(new List<String>(null, null) {
-        @Override
-        public int indexOf(String name) {
-            throw new RuntimeException("Undefined variable: " + name);
-        }
-    });
+    public static final Expression.Visitor<Primitive> EVALUATOR = createEvaluator(name -> {
+                throw new RuntimeException("Undefined variable: " + name);
+            }
+    );
 
     public static Primitive eval(Expression input) {
-        return input.accept(EVALUATOR).eval(null);
+        return input.accept(EVALUATOR);
     }
 }
