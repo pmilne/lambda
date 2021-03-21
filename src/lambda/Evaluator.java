@@ -7,16 +7,9 @@ import static lambda.Primitives.toFunction;
 /**
  * @author pmilne
  */
-@SuppressWarnings("UnnecessaryInterfaceModifier, WeakerAccess")
 public class Evaluator {
-
-    public static interface Implementation {
-        public Primitive eval(List<Primitive> valueStack);
-    }
-
-    // This visitor returns the value of an expression.
-    private static Expression.Visitor<Primitive> evaluator(Function<String, Primitive> env) {
-        return new Expression.Visitor<Primitive>() {
+    public static Primitive eval(Expression input, Function<String, Primitive> env) {
+        return input.accept(new Expression.Visitor<Primitive>() {
             @Override
             public Primitive constant(Primitive value) {
                 return value;
@@ -38,18 +31,12 @@ public class Evaluator {
             public Primitive lambda(String var, Expression exp) {
                 return Primitives.CONSTRUCTOR.function(arg -> eval(exp, s -> s.equals(var) ? arg : env.apply(s)));
             }
-        };
-    }
-
-    private static final Function<String, Primitive>   GLOBALS   = name -> {
-        throw new RuntimeException("Undefined variable: " + name);
-    };
-
-    public static Primitive eval(Expression input, Function<String, Primitive> env) {
-        return input.accept(evaluator(env));
+        });
     }
 
     public static Primitive eval(Expression input) {
-        return eval(input, GLOBALS);
+        return eval(input, name -> {
+            throw new RuntimeException("Undefined variable: " + name);
+        });
     }
 }
