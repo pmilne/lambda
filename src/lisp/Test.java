@@ -33,6 +33,7 @@ public class Test {
                 System.out.println("Input: " + exp);
                 Expression subst = Expressions.substitute(exp, GLOBALS);
                 Primitive value = evaluator.apply(subst);
+//                System.out.println("Value: " + value);
                 Expression out = Decompiler.toExpression(value);
                 String outString = out.toString();
                 System.out.println("Output: " + outString);
